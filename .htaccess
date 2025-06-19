@@ -1,0 +1,23 @@
+RewriteEngine On
+RewriteBase /study_sharing/
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php?url=$1 [QSA,L]
+
+# Bảo vệ các file nhạy cảm
+<FilesMatch "\.(ini|log|db)$">
+    Require all denied
+</FilesMatch>
+
+# Cho phép truy cập các tệp cần thiết
+<FilesMatch "\.(php|html|css|js|png|jpg|jpeg|gif|ico)$">
+    Require all granted
+</FilesMatch>
+
+# Tắt danh sách thư mục
+Options -Indexes
+
+# Đặt header bảo mật cơ bản
+Header set X-Content-Type-Options "nosniff"
+Header set X-Frame-Options "DENY"
+Header set X-XSS-Protection "1; mode=block"
