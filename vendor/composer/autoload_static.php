@@ -65,6 +65,7 @@ class ComposerStaticInitb90a54e9261f74f680f364c4b3330562
         'App\\' => 
         array (
             0 => __DIR__ . '/../..' . '/models',
+            1 => __DIR__ . '/../..' . '/controllers',
         ),
     );
 
@@ -83,6 +84,7 @@ class ComposerStaticInitb90a54e9261f74f680f364c4b3330562
         'App\\Rating' => __DIR__ . '/../..' . '/models/Rating.php',
         'App\\Tag' => __DIR__ . '/../..' . '/models/Tag.php',
         'App\\User' => __DIR__ . '/../..' . '/models/User.php',
+        'App\\UserController' => __DIR__ . '/../..' . '/controllers/UserController.php',
         'App\\UserPermission' => __DIR__ . '/../..' . '/models/UserPermission.php',
         'Attribute' => __DIR__ . '/..' . '/symfony/polyfill-php80/Resources/stubs/Attribute.php',
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',

@@ -1,8 +1,12 @@
 RewriteEngine On
 RewriteBase /study_sharing/
+
+# Không rewrite nếu là file hoặc thư mục thực tế
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(.*)$ index.php?url=$1 [QSA,L]
+
+# Rewrite tất cả các yêu cầu sang router.php
+RewriteRule ^(.*)$ router.php?url=$1 [QSA,L]
 
 # Bảo vệ các file nhạy cảm
 <FilesMatch "\.(ini|log|db)$">

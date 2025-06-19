@@ -20,6 +20,7 @@ return array(
     'App\\Rating' => $baseDir . '/models/Rating.php',
     'App\\Tag' => $baseDir . '/models/Tag.php',
     'App\\User' => $baseDir . '/models/User.php',
+    'App\\UserController' => $baseDir . '/controllers/UserController.php',
     'App\\UserPermission' => $baseDir . '/models/UserPermission.php',
     'Attribute' => $vendorDir . '/symfony/polyfill-php80/Resources/stubs/Attribute.php',
     'Composer\\InstalledVersions' => $vendorDir . '/composer/InstalledVersions.php',

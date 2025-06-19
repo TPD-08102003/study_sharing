@@ -1,0 +1,24 @@
+/* custom.css */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.navbar .nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.content {
+    padding-top: 60px;
+    /* Đảm bảo không bị che bởi navbar sticky */
+    padding-bottom: 60px;
+}
+
+@media (max-width: 768px) {
+    .navbar-nav {
+        flex-direction: row;
+    }
+
+    .navbar-nav .nav-link {
+        padding: 0.5rem 1rem;
+    }
+}

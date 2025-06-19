@@ -31,7 +31,7 @@ ob_start();
             <div class="row row-cols-1 row-cols-md-4 g-3">
                 <?php foreach ($categories as $category): ?>
                     <div class="col">
-                        <a href="/study_sharing/category/<?php echo $category['category_id']; ?>" class="card h-100 bg-light text-decoration-none">
+                        <a href="/category/<?php echo $category['category_id']; ?>" class="card h-100 bg-light text-decoration-none">
                             <div class="card-body text-center">
                                 <h5 class="card-title"><?php echo htmlspecialchars($category['category_name']); ?></h5>
                                 <p class="card-text text-muted"><?php echo htmlspecialchars($category['description'] ?? ''); ?></p>
@@ -52,7 +52,7 @@ ob_start();
                             <div class="card h-100">
                                 <div class="card-body">
                                     <h5 class="card-title text-primary">
-                                        <a href="/study_sharing/document/<?php echo $doc['document_id']; ?>" class="text-decoration-none">
+                                        <a href="/document/<?php echo $doc['document_id']; ?>" class="text-decoration-none">
                                             <?php echo htmlspecialchars($doc['title']); ?>
                                         </a>
                                     </h5>
@@ -78,7 +78,7 @@ ob_start();
                             <div class="card h-100">
                                 <div class="card-body">
                                     <h5 class="card-title text-primary">
-                                        <a href="/study_sharing/course/<?php echo $course['course_id']; ?>" class="text-decoration-none">
+                                        <a href="/course/<?php echo $course['course_id']; ?>" class="text-decoration-none">
                                             <?php echo htmlspecialchars($course['course_name']); ?>
                                         </a>
                                     </h5>
@@ -114,3 +114,4 @@ ob_start();
 $content = ob_get_clean();
 $title = "Trang chủ";
 require 'views/layouts/layout.php';
+?>
