@@ -51,7 +51,7 @@
                     <a class="nav-link text-white" href="/notification/list">
                         <i class="bi bi-bell-fill"></i> Thông báo
                     </a>
-                    <a class="nav-link text-white" href="/logout">
+                    <a class="nav-link text-white" href="/study_sharing/user/logout">
                         <i class="bi bi-box-arrow-right"></i> Đăng xuất
                     </a>
                     <a class="nav-link" href="/user/profile">

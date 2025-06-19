@@ -73,7 +73,9 @@ class UserController
             $user = $this->userModel->getUserByUsernameOrEmail($username);
 
             if ($user && ($user['password'] === $password || password_verify($password, $user['password']))) {
-                session_start();
+                if (session_status() === PHP_SESSION_NONE) {
+                    session_start();
+                }
                 $_SESSION['user_id'] = $user['user_id'];
                 $_SESSION['role'] = $user['role'];
                 header('Content-Type: application/json');
@@ -120,5 +122,15 @@ class UserController
             }
             exit;
         }
+    }
+    public function logout()
+    {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        session_unset();
+        session_destroy();
+        header('Location: /study_sharing'); // Chuyển hướng về trang chủ
+        exit;
     }
 }
