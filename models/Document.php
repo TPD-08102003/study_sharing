@@ -29,14 +29,14 @@ class Document
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function createDocument($title, $description, $file_path, $user_id, $category_id, $visibility = 'public')
+    public function createDocument($title, $description, $file_path, $account_id, $category_id, $visibility = 'public')
     {
-        $query = "INSERT INTO documents (title, description, file_path, user_id, category_id, visibility) VALUES (:title, :description, :file_path, :user_id, :category_id, :visibility)";
+        $query = "INSERT INTO documents (title, description, file_path, account_id, category_id, visibility) VALUES (:title, :description, :file_path, :account_id, :category_id, :visibility)";
         $stmt = $this->db->prepare($query);
         $stmt->bindParam(':title', $title, PDO::PARAM_STR);
         $stmt->bindParam(':description', $description, PDO::PARAM_STR);
         $stmt->bindParam(':file_path', $file_path, PDO::PARAM_STR);
-        $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
+        $stmt->bindParam(':account_id', $account_id, PDO::PARAM_INT);
         $stmt->bindParam(':category_id', $category_id, PDO::PARAM_INT);
         $stmt->bindParam(':visibility', $visibility, PDO::PARAM_STR);
         return $stmt->execute();

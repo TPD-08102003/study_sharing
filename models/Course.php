@@ -29,13 +29,13 @@ class Course
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function createCourse($course_name, $description, $creator_id)
+    public function createCourse($course_name, $description, $account_id)
     {
-        $query = "INSERT INTO courses (course_name, description, creator_id) VALUES (:course_name, :description, :creator_id)";
+        $query = "INSERT INTO courses (course_name, description, creator_id) VALUES (:course_name, :description, :account_id)";
         $stmt = $this->db->prepare($query);
         $stmt->bindParam(':course_name', $course_name, PDO::PARAM_STR);
         $stmt->bindParam(':description', $description, PDO::PARAM_STR);
-        $stmt->bindParam(':creator_id', $creator_id, PDO::PARAM_INT);
+        $stmt->bindParam(':account_id', $account_id, PDO::PARAM_INT);
         return $stmt->execute();
     }
 

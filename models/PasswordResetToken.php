@@ -22,11 +22,11 @@ class PasswordResetToken
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    public function createToken($user_id, $token, $expires_at)
+    public function createToken($account_id, $token, $expires_at)
     {
-        $query = "INSERT INTO password_reset_tokens (user_id, token, expires_at) VALUES (:user_id, :token, :expires_at)";
+        $query = "INSERT INTO password_reset_tokens (account_id, token, expires_at) VALUES (:account_id, :token, :expires_at)";
         $stmt = $this->db->prepare($query);
-        $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
+        $stmt->bindParam(':account_id', $account_id, PDO::PARAM_INT);
         $stmt->bindParam(':token', $token, PDO::PARAM_STR);
         $stmt->bindParam(':expires_at', $expires_at, PDO::PARAM_STR);
         return $stmt->execute();

@@ -31,12 +31,12 @@ class Rating
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function createRating($document_id, $user_id, $rating_value)
+    public function createRating($document_id, $account_id, $rating_value)
     {
-        $query = "INSERT INTO ratings (document_id, user_id, rating_value) VALUES (:document_id, :user_id, :rating_value)";
+        $query = "INSERT INTO ratings (document_id, account_id, rating_value) VALUES (:document_id, :account_id, :rating_value)";
         $stmt = $this->db->prepare($query);
         $stmt->bindParam(':document_id', $document_id, PDO::PARAM_INT);
-        $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
+        $stmt->bindParam(':account_id', $account_id, PDO::PARAM_INT);
         $stmt->bindParam(':rating_value', $rating_value, PDO::PARAM_INT);
         return $stmt->execute();
     }

@@ -9,11 +9,13 @@ class UserController
 {
     private $pdo;
     private $userModel;
+    private $accountModel;
 
     public function __construct($pdo)
     {
         $this->pdo = $pdo;
         $this->userModel = new User($pdo);
+        $this->accountModel = new Account($pdo);
     }
 
     public function register()
@@ -23,35 +25,38 @@ class UserController
             $email = $_POST['email'] ?? '';
             $password = password_hash($_POST['password'] ?? '', PASSWORD_DEFAULT);
             $full_name = $_POST['full_name'] ?? '';
-            $avatar = 'profile.png'; // Mặc định nếu không upload
+            $role = $_POST['role'] ?? '';
+            $date_of_birth = $_POST['date_of_birth'] ?: null;
+            $phone_number = $_POST['phone_number'] ?: null;
+            $address = $_POST['address'] ?: null;
+            $avatar = 'profile.png';
 
-            // Kiểm tra và xử lý upload avatar
-            if (isset($_FILES['avatar']) && $_FILES['avatar']['error'] === UPLOAD_ERR_OK) {
-                $uploadDir = __DIR__ . '/../assets/images/';
-                $avatar = uniqid() . '_' . basename($_FILES['avatar']['name']);
-                $uploadFile = $uploadDir . $avatar;
-                if (move_uploaded_file($_FILES['avatar']['tmp_name'], $uploadFile)) {
-                    // Thành công, sử dụng tên file đã upload
-                } else {
-                    header('Content-Type: application/json');
-                    echo json_encode(['success' => false, 'message' => 'Lỗi khi upload ảnh đại diện!']);
-                    exit;
-                }
+            if (!in_array($role, ['student', 'teacher'])) {
+                header('Content-Type: application/json');
+                echo json_encode(['success' => false, 'message' => 'Vai trò không hợp lệ!']);
+                exit;
             }
 
-            if ($username && $email && $password && $full_name) {
+            if ($username && $email && $password && $full_name && $role) {
                 try {
-                    $this->userModel->createUser($username, $email, $password, $full_name, 'student', 'active', $avatar);
+                    $this->pdo->beginTransaction();
+
+                    $account_id = $this->accountModel->createAccount($username, $email, $password, $role, 'active');
+
+                    $this->userModel->createUser($account_id, $full_name, $avatar, $date_of_birth, $phone_number, $address);
+
+                    $this->pdo->commit();
                     header('Content-Type: application/json');
                     echo json_encode(['success' => true, 'message' => 'Đăng ký thành công!']);
                 } catch (PDOException $e) {
+                    $this->pdo->rollBack();
                     error_log("Register error: " . $e->getMessage());
                     header('Content-Type: application/json');
                     echo json_encode(['success' => false, 'message' => 'Lỗi đăng ký: ' . $e->getMessage()]);
                 }
             } else {
                 header('Content-Type: application/json');
-                echo json_encode(['success' => false, 'message' => 'Vui lòng điền đầy đủ thông tin!']);
+                echo json_encode(['success' => false, 'message' => 'Vui lòng điền đầy đủ thông tin bắt buộc!']);
             }
             exit;
         }
@@ -75,27 +80,18 @@ class UserController
         }
 
         try {
-            $user = $this->userModel->getUserByUsernameOrEmail($username);
-            // So sánh cả plain text và hash
-            $isValid = false;
-            if ($user) {
-                if ($user['password'] === $password) {
-                    $isValid = true;
-                } elseif (password_verify($password, $user['password'])) {
-                    $isValid = true;
-                }
-            }
-            if ($isValid) {
+            $account = $this->accountModel->getAccountByUsernameOrEmail($username);
+            if ($account && password_verify($password, $account['password'])) {
                 if (session_status() === PHP_SESSION_NONE) {
                     session_start();
                 }
-                $_SESSION['user_id'] = $user['user_id'];
-                $_SESSION['role'] = $user['role'];
+                $_SESSION['account_id'] = $account['account_id'];
+                $_SESSION['role'] = $account['role'];
                 header('Content-Type: application/json');
                 echo json_encode([
                     'success' => true,
                     'message' => 'Đăng nhập thành công!',
-                    'role' => $user['role']
+                    'role' => $account['role']
                 ]);
             } else {
                 header('Content-Type: application/json');
@@ -111,32 +107,29 @@ class UserController
 
     public function updateProfile()
     {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['user_id'])) {
-            $user_id = $_SESSION['user_id'];
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_SESSION['account_id'])) {
+            $account_id = $_SESSION['account_id'];
             $username = $_POST['username'] ?? '';
             $email = $_POST['email'] ?? '';
             $password = $_POST['password'] ? password_hash($_POST['password'], PASSWORD_DEFAULT) : null;
             $full_name = $_POST['full_name'] ?? '';
-            $avatar = null;
-
-            if (isset($_FILES['avatar']) && $_FILES['avatar']['error'] === UPLOAD_ERR_OK) {
-                $uploadDir = __DIR__ . '/../assets/images/';
-                $avatar = uniqid() . '_' . basename($_FILES['avatar']['name']);
-                $uploadFile = $uploadDir . $avatar;
-                if (move_uploaded_file($_FILES['avatar']['tmp_name'], $uploadFile)) {
-                    // Thành công
-                } else {
-                    header('Content-Type: application/json');
-                    echo json_encode(['success' => false, 'message' => 'Lỗi khi upload ảnh đại diện!']);
-                    exit;
-                }
-            }
+            $date_of_birth = $_POST['date_of_birth'] ?: null;
+            $phone_number = $_POST['phone_number'] ?: null;
+            $address = $_POST['address'] ?: null;
+            $avatar = 'profile.png';
 
             try {
-                $this->userModel->updateUser($user_id, $username, $email, $password ?: '', $full_name, $_SESSION['role'], 'active', $avatar);
+                $this->pdo->beginTransaction();
+
+                $this->accountModel->updateAccount($account_id, $username, $email, $password, $_SESSION['role'], 'active');
+
+                $this->userModel->updateUser($account_id, $full_name, $avatar, $date_of_birth, $phone_number, $address);
+
+                $this->pdo->commit();
                 header('Content-Type: application/json');
                 echo json_encode(['success' => true, 'message' => 'Cập nhật hồ sơ thành công!']);
             } catch (PDOException $e) {
+                $this->pdo->rollBack();
                 error_log("Update profile error: " . $e->getMessage());
                 header('Content-Type: application/json');
                 echo json_encode(['success' => false, 'message' => 'Lỗi cập nhật: ' . $e->getMessage()]);

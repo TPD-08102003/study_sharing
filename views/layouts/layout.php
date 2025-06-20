@@ -1,3 +1,8 @@
+<?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+?>
 <!DOCTYPE html>
 <html lang="vi">
 
@@ -41,7 +46,7 @@
                 <!-- Nút chức năng -->
                 <ul class="navbar-nav ms-auto">
                     <?php
-                    $user = isset($_SESSION['user_id']) ? (new \App\User($pdo))->getUserById($_SESSION['user_id']) : null;
+                    $user = isset($_SESSION['account_id']) ? (new \App\User($pdo))->getUserById($_SESSION['account_id']) : null;
                     $role = $user ? $user['role'] : null;
                     $avatar = $user && $user['avatar'] ? '/study_sharing/assets/images/' . htmlspecialchars($user['avatar']) : '/study_sharing/assets/images/profile.png';
                     ?>
@@ -53,16 +58,9 @@
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li><a class="dropdown-item" href="/documents/list"><i class="bi bi-collection"></i> Xem tất cả</a></li>
-                            <?php if ($user): ?>
-                                <?php
-                                $userModel = new \App\User($pdo);
-                                $permissions = $userModel->getUserPermissions($user['user_id']);
-                                if (in_array('upload_document', $permissions)): ?>
-                                    <li><a class="dropdown-item" href="/document/upload"><i class="bi bi-upload"></i> Tải lên</a></li>
-                                <?php endif; ?>
-                                <?php if (in_array('delete_document', $permissions)): ?>
-                                    <li><a class="dropdown-item" href="/document/delete"><i class="bi bi-trash"></i> Quản lý</a></li>
-                                <?php endif; ?>
+                            <?php if ($user && in_array($role, ['admin', 'teacher'])): ?>
+                                <li><a class="dropdown-item" href="/document/upload"><i class="bi bi-upload"></i> Tải lên</a></li>
+                                <li><a class="dropdown-item" href="/document/delete"><i class="bi bi-trash"></i> Quản lý</a></li>
                             <?php endif; ?>
                         </ul>
                     </li>
@@ -85,7 +83,7 @@
                         <li class="nav-item dropdown ms-lg-2">
                             <div class="d-flex align-items-center">
                                 <a class="nav-link dropdown-toggle pe-2" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <span class="d-none d-lg-inline">Tài khoản</span>
+                                    <span class="d-none d-lg-inline"><?php echo htmlspecialchars($user['full_name']); ?></span>
                                 </a>
                                 <a class="avatar-container" href="#" data-bs-toggle="dropdown" aria-expanded="false">
                                     <img src="<?php echo $avatar; ?>" alt="Avatar" class="avatar-img rounded-circle" style="height: 36px; width: 36px; object-fit: cover;">
@@ -93,7 +91,6 @@
                                 <ul class="dropdown-menu dropdown-menu-end">
                                     <li><a class="dropdown-item" href="/user/profile"><i class="bi bi-person"></i> Hồ sơ</a></li>
                                     <li><a class="dropdown-item" href="/notification/list"><i class="bi bi-bell"></i> Thông báo</a></li>
-
                                     <?php if ($role === 'admin'): ?>
                                         <li>
                                             <hr class="dropdown-divider">
@@ -105,7 +102,6 @@
                                         <li><a class="dropdown-item" href="/category/manage"><i class="bi bi-folder"></i> Quản lý danh mục</a></li>
                                         <li><a class="dropdown-item" href="/tag/manage"><i class="bi bi-tag"></i> Quản lý thẻ</a></li>
                                     <?php endif; ?>
-
                                     <li>
                                         <hr class="dropdown-divider">
                                     </li>
@@ -188,7 +184,7 @@
                 </div>
                 <div class="modal-body">
                     <div id="registerMessage"></div>
-                    <form id="registerForm" method="POST" class="needs-validation" novalidate enctype="multipart/form-data">
+                    <form id="registerForm" method="POST" class="needs-validation" novalidate>
                         <div class="mb-3">
                             <label for="registerUsername" class="form-label">Tên đăng nhập</label>
                             <input type="text" class="form-control" id="registerUsername" name="username" required>
@@ -210,8 +206,28 @@
                             <div class="invalid-feedback">Vui lòng nhập họ và tên.</div>
                         </div>
                         <div class="mb-3">
-                            <label for="registerAvatar" class="form-label">Ảnh đại diện</label>
-                            <input type="file" class="form-control" id="registerAvatar" name="avatar" accept="image/*">
+                            <label for="registerRole" class="form-label">Vai trò</label>
+                            <select class="form-control" id="registerRole" name="role" required>
+                                <option value="" disabled selected>Chọn vai trò</option>
+                                <option value="student">Học sinh (Sinh viên)</option>
+                                <option value="teacher">Giảng viên</option>
+                            </select>
+                            <div class="invalid-feedback">Vui lòng chọn vai trò.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="registerDateOfBirth" class="form-label">Ngày sinh (tùy chọn)</label>
+                            <input type="date" class="form-control" id="registerDateOfBirth" name="date_of_birth">
+                            <div class="invalid-feedback">Vui lòng nhập ngày sinh hợp lệ.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="registerPhoneNumber" class="form-label">Số điện thoại (tùy chọn)</label>
+                            <input type="tel" class="form-control" id="registerPhoneNumber" name="phone_number" pattern="[0-9]{10}">
+                            <div class="invalid-feedback">Vui lòng nhập số điện thoại hợp lệ (10 số).</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="registerAddress" class="form-label">Địa chỉ (tùy chọn)</label>
+                            <input type="text" class="form-control" id="registerAddress" name="address">
+                            <div class="invalid-feedback">Vui lòng nhập địa chỉ hợp lệ.</div>
                         </div>
                         <button type="submit" class="btn btn-primary w-100">Đăng ký</button>
                     </form>

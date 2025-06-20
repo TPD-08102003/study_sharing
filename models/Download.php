@@ -31,12 +31,12 @@ class Download
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function recordDownload($document_id, $user_id)
+    public function recordDownload($document_id, $account_id)
     {
-        $query = "INSERT INTO downloads (document_id, user_id) VALUES (:document_id, :user_id)";
+        $query = "INSERT INTO downloads (document_id, account_id) VALUES (:document_id, :account_id)";
         $stmt = $this->db->prepare($query);
         $stmt->bindParam(':document_id', $document_id, PDO::PARAM_INT);
-        $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
+        $stmt->bindParam(':account_id', $account_id, PDO::PARAM_INT);
         return $stmt->execute();
     }
 }

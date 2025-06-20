@@ -3,6 +3,7 @@
 namespace App;
 
 use PDO;
+use PDOException;
 
 class User
 {
@@ -13,85 +14,88 @@ class User
         $this->db = $db;
     }
 
-    public function getUserById($user_id)
+    public function getUserById($account_id)
     {
-        $query = "SELECT * FROM users WHERE user_id = :user_id";
+        $query = "
+            SELECT a.account_id, a.username, a.email, a.role, a.status, a.created_at, a.updated_at,
+                   u.user_id, u.full_name, u.avatar, u.date_of_birth, u.phone_number, u.address
+            FROM accounts a
+            LEFT JOIN users u ON a.account_id = u.account_id
+            WHERE a.account_id = :account_id
+        ";
         $stmt = $this->db->prepare($query);
-        $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
+        $stmt->bindParam(':account_id', $account_id, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
     public function getAllUsers()
     {
-        $query = "SELECT * FROM users";
+        $query = "
+            SELECT a.account_id, a.username, a.email, a.role, a.status, a.created_at, a.updated_at,
+                u.user_id, u.full_name, u.avatar, u.date_of_birth, u.phone_number, u.address
+            FROM accounts a
+            LEFT JOIN users u ON a.account_id = u.account_id
+        ";
         $stmt = $this->db->query($query);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function createUser($username, $email, $password, $full_name, $role = 'student', $status = 'active', $avatar = null)
+    public function createUser($account_id, $full_name, $avatar = 'profile.png', $date_of_birth = null, $phone_number = null, $address = null)
     {
-        $query = "INSERT INTO users (username, email, password, full_name, role, status, avatar) VALUES (:username, :email, :password, :full_name, :role, :status, :avatar)";
+        $query = "INSERT INTO users (account_id, full_name, avatar, date_of_birth, phone_number, address) VALUES (:account_id, :full_name, :avatar, :date_of_birth, :phone_number, :address)";
         $stmt = $this->db->prepare($query);
-        $stmt->bindParam(':username', $username, PDO::PARAM_STR);
-        $stmt->bindParam(':email', $email, PDO::PARAM_STR);
-        $stmt->bindParam(':password', $password, PDO::PARAM_STR);
+        $stmt->bindParam(':account_id', $account_id, PDO::PARAM_INT);
         $stmt->bindParam(':full_name', $full_name, PDO::PARAM_STR);
-        $stmt->bindParam(':role', $role, PDO::PARAM_STR);
-        $stmt->bindParam(':status', $status, PDO::PARAM_STR);
-        $stmt->bindParam(':avatar', $avatar, PDO::PARAM_STR, 255);
+        $stmt->bindParam(':avatar', $avatar, PDO::PARAM_STR);
+        $stmt->bindParam(':date_of_birth', $date_of_birth, PDO::PARAM_STR);
+        $stmt->bindParam(':phone_number', $phone_number, PDO::PARAM_STR);
+        $stmt->bindParam(':address', $address, PDO::PARAM_STR);
         return $stmt->execute();
     }
 
-    public function updateUser($user_id, $username, $email, $password, $full_name, $role, $status, $avatar = null)
+    public function updateUser($account_id, $full_name, $avatar = 'profile.png', $date_of_birth = null, $phone_number = null, $address = null)
     {
-        $query = "UPDATE users SET username = :username, email = :email, password = :password, full_name = :full_name, role = :role, status = :status, avatar = :avatar, updated_at = CURRENT_TIMESTAMP WHERE user_id = :user_id";
+        $query = "UPDATE users SET full_name = :full_name, avatar = :avatar, date_of_birth = :date_of_birth, phone_number = :phone_number, address = :address WHERE account_id = :account_id";
         $stmt = $this->db->prepare($query);
-        $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
-        $stmt->bindParam(':username', $username, PDO::PARAM_STR);
-        $stmt->bindParam(':email', $email, PDO::PARAM_STR);
-        $stmt->bindParam(':password', $password, PDO::PARAM_STR);
+        $stmt->bindParam(':account_id', $account_id, PDO::PARAM_INT);
         $stmt->bindParam(':full_name', $full_name, PDO::PARAM_STR);
-        $stmt->bindParam(':role', $role, PDO::PARAM_STR);
-        $stmt->bindParam(':status', $status, PDO::PARAM_STR);
-        $stmt->bindParam(':avatar', $avatar, PDO::PARAM_STR, 255);
+        $stmt->bindParam(':avatar', $avatar, PDO::PARAM_STR);
+        $stmt->bindParam(':date_of_birth', $date_of_birth, PDO::PARAM_STR);
+        $stmt->bindParam(':phone_number', $phone_number, PDO::PARAM_STR);
+        $stmt->bindParam(':address', $address, PDO::PARAM_STR);
         return $stmt->execute();
     }
 
-    public function deleteUser($user_id)
+    public function deleteUser($account_id)
     {
-        $query = "DELETE FROM users WHERE user_id = :user_id";
+        $query = "DELETE FROM users WHERE account_id = :account_id";
         $stmt = $this->db->prepare($query);
-        $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
+        $stmt->bindParam(':account_id', $account_id, PDO::PARAM_INT);
         return $stmt->execute();
     }
 
-    public function updateUserAvatar($user_id, $avatar)
+    public function updateUserAvatar($account_id, $avatar)
     {
-        $query = "UPDATE users SET avatar = :avatar, updated_at = CURRENT_TIMESTAMP WHERE user_id = :user_id";
+        $query = "UPDATE users SET avatar = :avatar WHERE account_id = :account_id";
         $stmt = $this->db->prepare($query);
-        $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
-        $stmt->bindParam(':avatar', $avatar, PDO::PARAM_STR, 255);
+        $stmt->bindParam(':account_id', $account_id, PDO::PARAM_INT);
+        $stmt->bindParam(':avatar', $avatar, PDO::PARAM_STR);
         return $stmt->execute();
-    }
-
-    public function getUserPermissions($user_id)
-    {
-        $query = "SELECT p.permission_name FROM permissions p
-                JOIN user_permissions up ON p.permission_id = up.permission_id
-                WHERE up.user_id = :user_id";
-        $stmt = $this->db->prepare($query);
-        $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
-        $stmt->execute();
-        return array_column($stmt->fetchAll(PDO::FETCH_ASSOC), 'permission_name');
     }
 
     public function getUserByUsernameOrEmail($username_or_email)
     {
-        $query = "SELECT * FROM users WHERE username = :username_or_email OR email = :email LIMIT 1";
+        $query = "
+            SELECT a.account_id, a.username, a.email, a.password, a.role, a.status, a.created_at, a.updated_at,
+                u.user_id, u.full_name, u.avatar, u.date_of_birth, u.phone_number, u.address
+            FROM accounts a
+            LEFT JOIN users u ON a.account_id = u.account_id
+            WHERE a.username = :username_or_email OR a.email = :username_or_email
+            LIMIT 1
+        ";
         $stmt = $this->db->prepare($query);
         $stmt->bindParam(':username_or_email', $username_or_email, PDO::PARAM_STR);
-        $stmt->bindParam(':email', $username_or_email, PDO::PARAM_STR);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }

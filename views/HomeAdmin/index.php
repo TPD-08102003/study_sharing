@@ -12,7 +12,7 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 // Kiểm tra quyền admin
-if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+if (!isset($_SESSION['account_id']) || !isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     header('Location: /study_sharing');
     exit;
 }
@@ -36,34 +36,27 @@ $totalCategories = $categoryModel->countCategories();
         transition: transform 0.3s ease, box-shadow 0.3s ease;
         overflow: hidden;
         background: linear-gradient(145deg, #ffffff, #f8f9fa);
-        /* Gradient nền nhẹ */
     }
 
     .dashboard-card:hover {
         transform: translateY(-3px);
         box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
-        /* Bóng đổ động */
     }
 
-    /* Card màu riêng biệt */
     .card-users {
         border-left: 4px solid #0d6ffd;
-        /* Màu xanh cho người dùng */
     }
 
     .card-documents {
         border-left: 4px solid #198754;
-        /* Màu xanh lá cho tài liệu */
     }
 
     .card-courses {
         border-left: 4px solid #dc3545;
-        /* Màu đỏ cho khóa học */
     }
 
     .card-categories {
         border-left: 4px solid #ffc107;
-        /* Màu vàng cho danh mục */
     }
 
     .card-body {
@@ -79,9 +72,7 @@ $totalCategories = $categoryModel->countCategories();
 
     .dashboard-card:hover .card-icon {
         transform: scale(1.2);
-        /* Phóng to icon khi hover */
         color: #0d6efd;
-        /* Chuyển màu icon */
     }
 
     .card-title {
@@ -113,7 +104,6 @@ $totalCategories = $categoryModel->countCategories();
         color: #0d6efd;
     }
 
-    /* Nút điều hướng nhanh */
     .quick-action-btn {
         font-weight: 500;
         padding: 0.75rem 1.5rem;
@@ -127,7 +117,6 @@ $totalCategories = $categoryModel->countCategories();
         transform: translateY(-3px);
     }
 
-    /* Responsive */
     @media (max-width: 768px) {
         .dashboard-card {
             margin-bottom: 1rem;

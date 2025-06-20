@@ -6,6 +6,7 @@ use App\Document;
 use App\Category;
 use App\Course;
 use App\Notification;
+use App\User;
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -25,10 +26,12 @@ $documentModel = new Document($pdo);
 $categoryModel = new Category($pdo);
 $courseModel = new Course($pdo);
 $notificationModel = new Notification($pdo);
+$userModel = new User($pdo);
+
 $latestDocuments = $documentModel->getAllDocuments();
 $categories = $categoryModel->getAllCategories();
 $courses = $courseModel->getAllCourses();
-$notifications = isset($_SESSION['user_id']) ? $notificationModel->getNotificationsByUserId($_SESSION['user_id']) : [];
+$notifications = isset($_SESSION['account_id']) ? $notificationModel->getNotificationsByUserId($_SESSION['account_id']) : [];
 
 ob_start();
 ?>
@@ -70,7 +73,11 @@ ob_start();
                                         </a>
                                     </h5>
                                     <p class="card-text text-muted"><?php echo htmlspecialchars($doc['description'] ?? ''); ?></p>
-                                    <p class="card-text text-small text-muted">Đăng bởi: <?php echo htmlspecialchars($doc['user_id']); ?> - <?php echo $doc['upload_date']; ?></p>
+                                    <?php
+                                    $user = $userModel->getUserById($doc['account_id']);
+                                    $uploaderName = $user ? htmlspecialchars($user['full_name']) : 'Không xác định';
+                                    ?>
+                                    <p class="card-text text-small text-muted">Đăng bởi: <?php echo $uploaderName; ?> - <?php echo $doc['upload_date']; ?></p>
                                 </div>
                             </div>
                         </div>
@@ -96,7 +103,11 @@ ob_start();
                                         </a>
                                     </h5>
                                     <p class="card-text text-muted"><?php echo htmlspecialchars($course['description'] ?? ''); ?></p>
-                                    <p class="card-text text-small text-muted">Tạo bởi: <?php echo htmlspecialchars($course['creator_id']); ?> - <?php echo $course['created_at']; ?></p>
+                                    <?php
+                                    $creator = $userModel->getUserById($course['creator_id']);
+                                    $creatorName = $creator ? htmlspecialchars($creator['full_name']) : 'Không xác định';
+                                    ?>
+                                    <p class="card-text text-small text-muted">Tạo bởi: <?php echo $creatorName; ?> - <?php echo $course['created_at']; ?></p>
                                 </div>
                             </div>
                         </div>
@@ -108,7 +119,7 @@ ob_start();
         </section>
 
         <!-- Thông báo (nếu đã đăng nhập) -->
-        <?php if (isset($_SESSION['user_id']) && $notifications): ?>
+        <?php if (isset($_SESSION['account_id']) && $notifications): ?>
             <section>
                 <h2 class="h4 mb-3 text-dark">Thông báo</h2>
                 <div class="card p-3 shadow-sm">
@@ -127,3 +138,4 @@ ob_start();
 $content = ob_get_clean();
 $title = "Trang chủ";
 require 'views/layouts/layout.php';
+?>

@@ -41,25 +41,53 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
 });
 
 // Xử lý form đăng ký
-document.getElementById('registerForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const form = this;
-    if (!form.checkValidity()) {
-        e.stopPropagation();
-        form.classList.add('was-validated');
-        return;
-    }
-    const formData = new FormData(form);
-    fetch(getBaseURL() + 'user/register', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            document.getElementById('registerMessage').innerHTML = `<div class="alert ${data.success ? 'alert-success' : 'alert-danger'}">${data.message}</div>`;
-            if (data.success) {
-                setTimeout(() => bootstrap.Modal.getInstance(document.getElementById('registerModal')).hide(), 1000);
+(function() {
+    'use strict';
+    const registerForm = document.querySelector('#registerForm');
+    if (registerForm) {
+        registerForm.addEventListener('submit', function(event) {
+            const form = this;
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            } else {
+                event.preventDefault();
+                const formData = new FormData(form);
+                // Gửi AJAX request
+                fetch('/study_sharing/user/register', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        const messageDiv = document.querySelector('#registerMessage');
+                        messageDiv.innerHTML = `<div class="alert alert-${data.success ? 'success' : 'danger'}">${data.message}</div>`;
+                        if (data.success) {
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 2000);
+                        }
+                    })
+                    .catch(error => {
+                        const messageDiv = document.querySelector('#registerMessage');
+                        messageDiv.innerHTML = '<div class="alert alert-danger">Lỗi server, vui lòng thử lại!</div>';
+                    });
             }
+            form.classList.add('was-validated');
+        }, false);
+
+        // Xóa invalid-feedback khi người dùng nhập dữ liệu
+        const optionalFields = ['registerDateOfBirth', 'registerPhoneNumber', 'registerAddress'];
+        optionalFields.forEach(id => {
+            const field = document.querySelector(`#${id}`);
+            field.addEventListener('input', function() {
+                if (this.value) {
+                    this.classList.add('is-valid');
+                    this.classList.remove('is-invalid');
+                } else {
+                    this.classList.remove('is-valid', 'is-invalid');
+                }
+            });
         });
-    form.classList.remove('was-validated');
-});
+    }
+})();

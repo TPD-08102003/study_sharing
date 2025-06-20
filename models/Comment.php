@@ -31,12 +31,12 @@ class Comment
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function createComment($document_id, $user_id, $comment_text)
+    public function createComment($document_id, $account_id, $comment_text)
     {
-        $query = "INSERT INTO comments (document_id, user_id, comment_text) VALUES (:document_id, :user_id, :comment_text)";
+        $query = "INSERT INTO comments (document_id, account_id, comment_text) VALUES (:document_id, :account_id, :comment_text)";
         $stmt = $this->db->prepare($query);
         $stmt->bindParam(':document_id', $document_id, PDO::PARAM_INT);
-        $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
+        $stmt->bindParam(':account_id', $account_id, PDO::PARAM_INT);
         $stmt->bindParam(':comment_text', $comment_text, PDO::PARAM_STR);
         return $stmt->execute();
     }
