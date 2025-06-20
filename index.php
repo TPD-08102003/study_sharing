@@ -7,7 +7,20 @@ use App\Category;
 use App\Course;
 use App\Notification;
 
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+$uri = $_SERVER['REQUEST_URI'];
+if (strpos($uri, '/HomeAdmin/index') !== false) {
+    $title = "Bảng điều khiển Admin";
+    ob_start();
+    require __DIR__ . '/views/HomeAdmin/index.php';
+    $content = ob_get_clean();
+    require __DIR__ . '/views/layouts/layout.php';
+    exit;
+}
+
 $documentModel = new Document($pdo);
 $categoryModel = new Category($pdo);
 $courseModel = new Course($pdo);

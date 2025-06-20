@@ -38,4 +38,11 @@ class Course
         $stmt->bindParam(':creator_id', $creator_id, PDO::PARAM_INT);
         return $stmt->execute();
     }
+
+    public function countCourses()
+    {
+        $query = "SELECT COUNT(*) FROM courses";
+        $stmt = $this->db->query($query);
+        return $stmt->fetchColumn();
+    }
 }

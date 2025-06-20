@@ -8,6 +8,7 @@ require_once __DIR__ . '/vendor/autoload.php';
 require_once __DIR__ . '/config/db.php';
 
 use App\UserController;
+// thêm các controller khác nếu cần
 
 session_start();
 
@@ -28,6 +29,8 @@ error_log("Controller: $controllerName, Action: $action");
 
 $allowedControllers = [
     'UserController' => UserController::class,
+    // Thêm các controller khác nếu cần
+    // 'DocumentController' => DocumentController::class,
 ];
 
 if (array_key_exists($controllerName, $allowedControllers)) {

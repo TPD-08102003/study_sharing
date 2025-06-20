@@ -62,4 +62,11 @@ class Document
         $stmt->bindParam(':document_id', $document_id, PDO::PARAM_INT);
         return $stmt->execute();
     }
+
+    public function countDocuments()
+    {
+        $query = "SELECT COUNT(*) FROM documents";
+        $stmt = $this->db->query($query);
+        return $stmt->fetchColumn();
+    }
 }

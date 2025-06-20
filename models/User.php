@@ -95,4 +95,11 @@ class User
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
+
+    public function countUsers()
+    {
+        $query = "SELECT COUNT(*) FROM users";
+        $stmt = $this->db->query($query);
+        return $stmt->fetchColumn();
+    }
 }

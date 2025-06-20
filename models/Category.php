@@ -55,4 +55,11 @@ class Category
         $stmt->bindParam(':category_id', $category_id, PDO::PARAM_INT);
         return $stmt->execute();
     }
+
+    public function countCategories()
+    {
+        $query = "SELECT COUNT(*) FROM categories";
+        $stmt = $this->db->query($query);
+        return $stmt->fetchColumn();
+    }
 }

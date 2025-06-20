@@ -33,6 +33,7 @@ class UserController
                 if (move_uploaded_file($_FILES['avatar']['tmp_name'], $uploadFile)) {
                     // Thành công, sử dụng tên file đã upload
                 } else {
+                    header('Content-Type: application/json');
                     echo json_encode(['success' => false, 'message' => 'Lỗi khi upload ảnh đại diện!']);
                     exit;
                 }
@@ -41,11 +42,15 @@ class UserController
             if ($username && $email && $password && $full_name) {
                 try {
                     $this->userModel->createUser($username, $email, $password, $full_name, 'student', 'active', $avatar);
+                    header('Content-Type: application/json');
                     echo json_encode(['success' => true, 'message' => 'Đăng ký thành công!']);
                 } catch (PDOException $e) {
+                    error_log("Register error: " . $e->getMessage());
+                    header('Content-Type: application/json');
                     echo json_encode(['success' => false, 'message' => 'Lỗi đăng ký: ' . $e->getMessage()]);
                 }
             } else {
+                header('Content-Type: application/json');
                 echo json_encode(['success' => false, 'message' => 'Vui lòng điền đầy đủ thông tin!']);
             }
             exit;
@@ -71,18 +76,30 @@ class UserController
 
         try {
             $user = $this->userModel->getUserByUsernameOrEmail($username);
-
-            if ($user && ($user['password'] === $password || password_verify($password, $user['password']))) {
+            // So sánh cả plain text và hash
+            $isValid = false;
+            if ($user) {
+                if ($user['password'] === $password) {
+                    $isValid = true;
+                } elseif (password_verify($password, $user['password'])) {
+                    $isValid = true;
+                }
+            }
+            if ($isValid) {
                 if (session_status() === PHP_SESSION_NONE) {
                     session_start();
                 }
                 $_SESSION['user_id'] = $user['user_id'];
                 $_SESSION['role'] = $user['role'];
                 header('Content-Type: application/json');
-                echo json_encode(['success' => true, 'message' => 'Đăng nhập thành công!']);
+                echo json_encode([
+                    'success' => true,
+                    'message' => 'Đăng nhập thành công!',
+                    'role' => $user['role']
+                ]);
             } else {
                 header('Content-Type: application/json');
-                echo json_encode(['success' => false, 'message' => 'Thông tin đăng nhập không đúng!']);
+                echo json_encode(['success' => false, 'message' => 'Tên đăng nhập hoặc mật khẩu không đúng!']);
             }
         } catch (PDOException $e) {
             error_log("Login error: " . $e->getMessage());
@@ -109,6 +126,7 @@ class UserController
                 if (move_uploaded_file($_FILES['avatar']['tmp_name'], $uploadFile)) {
                     // Thành công
                 } else {
+                    header('Content-Type: application/json');
                     echo json_encode(['success' => false, 'message' => 'Lỗi khi upload ảnh đại diện!']);
                     exit;
                 }
@@ -116,13 +134,17 @@ class UserController
 
             try {
                 $this->userModel->updateUser($user_id, $username, $email, $password ?: '', $full_name, $_SESSION['role'], 'active', $avatar);
+                header('Content-Type: application/json');
                 echo json_encode(['success' => true, 'message' => 'Cập nhật hồ sơ thành công!']);
             } catch (PDOException $e) {
+                error_log("Update profile error: " . $e->getMessage());
+                header('Content-Type: application/json');
                 echo json_encode(['success' => false, 'message' => 'Lỗi cập nhật: ' . $e->getMessage()]);
             }
             exit;
         }
     }
+
     public function logout()
     {
         if (session_status() === PHP_SESSION_NONE) {
@@ -130,7 +152,7 @@ class UserController
         }
         session_unset();
         session_destroy();
-        header('Location: /study_sharing'); // Chuyển hướng về trang chủ
+        header('Location: /study_sharing');
         exit;
     }
 }
