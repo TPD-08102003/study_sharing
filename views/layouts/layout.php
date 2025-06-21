@@ -58,13 +58,9 @@ if (session_status() === PHP_SESSION_NONE) {
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li><a class="dropdown-item" href="/documents/list"><i class="bi bi-collection"></i> Xem tất cả</a></li>
-                            <?php if ($user && in_array($role, ['admin', 'teacher', 'student'])): ?>
+                            <?php if ($user && in_array($role, ['teacher', 'student'])): ?>
                                 <li><a class="dropdown-item" href="/document/upload"><i class="bi bi-upload"></i> Tải lên</a></li>
                                 <li><a class="dropdown-item" href="/document/delete"><i class="bi bi-trash"></i> Quản lý</a></li>
-                            <?php endif; ?>
-                            <?php if ($role === 'admin'): ?>
-                                <li><a class="dropdown-item" href="/document/approve"><i class="bi bi-check-circle"></i> Phê duyệt tài liệu</a></li>
-                                <li><a class="dropdown-item" href="/document/statistics"><i class="bi bi-bar-chart"></i> Thống kê tài liệu</a></li>
                             <?php endif; ?>
                             <?php if ($role === 'student'): ?>
                                 <li><a class="dropdown-item" href="/document/my_documents"><i class="bi bi-journal-bookmark"></i> Tài liệu của tôi</a></li>
@@ -81,10 +77,6 @@ if (session_status() === PHP_SESSION_NONE) {
                             <?php if ($role === 'teacher'): ?>
                                 <li><a class="dropdown-item" href="/course/create"><i class="bi bi-plus-circle"></i> Tạo khóa học</a></li>
                                 <li><a class="dropdown-item" href="/course/manage"><i class="bi bi-gear"></i> Quản lý khóa học</a></li>
-                            <?php endif; ?>
-                            <?php if ($role === 'admin'): ?>
-                                <li><a class="dropdown-item" href="/course/approve"><i class="bi bi-check-circle"></i> Phê duyệt khóa học</a></li>
-                                <li><a class="dropdown-item" href="/course/statistics"><i class="bi bi-bar-chart"></i> Thống kê khóa học</a></li>
                             <?php endif; ?>
                             <?php if ($role === 'student'): ?>
                                 <li><a class="dropdown-item" href="/course/my_courses"><i class="bi bi-journal-text"></i> Khóa học của tôi</a></li>
@@ -106,17 +98,6 @@ if (session_status() === PHP_SESSION_NONE) {
                                     <li><a class="dropdown-item" href="/user/profile"><i class="bi bi-person"></i> Hồ sơ</a></li>
                                     <li><a class="dropdown-item" href="/notification/list"><i class="bi bi-bell"></i> Thông báo</a></li>
                                     <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#changePasswordModal"><i class="bi bi-key"></i> Đổi mật khẩu</a></li>
-                                    <?php if ($role === 'admin'): ?>
-                                        <li>
-                                            <hr class="dropdown-divider">
-                                        </li>
-                                        <li>
-                                            <h6 class="dropdown-header">QUẢN TRỊ HỆ THỐNG</h6>
-                                        </li>
-                                        <li><a class="dropdown-item" href="/user/manage_users"><i class="bi bi-people"></i> Quản lý người dùng</a></li>
-                                        <li><a class="dropdown-item" href="/category/manage"><i class="bi bi-folder"></i> Quản lý danh mục</a></li>
-                                        <li><a class="dropdown-item" href="/tag/manage"><i class="bi bi-tag"></i> Quản lý thẻ</a></li>
-                                    <?php endif; ?>
                                     <li>
                                         <hr class="dropdown-divider">
                                     </li>
@@ -177,9 +158,6 @@ if (session_status() === PHP_SESSION_NONE) {
                             <label for="loginPassword" class="form-label">Mật khẩu</label>
                             <input type="password" class="form-control" id="loginPassword" name="password" required>
                             <div class="invalid-feedback">Vui lòng nhập mật khẩu.</div>
-                        </div>
-                        <div class="mb-3">
-                            <a href="#" data-bs-toggle="modal" data-bs-target="#forgotPasswordModal" data-bs-dismiss="modal">Quên mật khẩu?</a>
                         </div>
                         <button type="submit" class="btn btn-primary w-100">
                             <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
