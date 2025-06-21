@@ -58,9 +58,16 @@ if (session_status() === PHP_SESSION_NONE) {
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li><a class="dropdown-item" href="/documents/list"><i class="bi bi-collection"></i> Xem tất cả</a></li>
-                            <?php if ($user && in_array($role, ['admin', 'teacher'])): ?>
+                            <?php if ($user && in_array($role, ['admin', 'teacher', 'student'])): ?>
                                 <li><a class="dropdown-item" href="/document/upload"><i class="bi bi-upload"></i> Tải lên</a></li>
                                 <li><a class="dropdown-item" href="/document/delete"><i class="bi bi-trash"></i> Quản lý</a></li>
+                            <?php endif; ?>
+                            <?php if ($role === 'admin'): ?>
+                                <li><a class="dropdown-item" href="/document/approve"><i class="bi bi-check-circle"></i> Phê duyệt tài liệu</a></li>
+                                <li><a class="dropdown-item" href="/document/statistics"><i class="bi bi-bar-chart"></i> Thống kê tài liệu</a></li>
+                            <?php endif; ?>
+                            <?php if ($role === 'student'): ?>
+                                <li><a class="dropdown-item" href="/document/my_documents"><i class="bi bi-journal-bookmark"></i> Tài liệu của tôi</a></li>
                             <?php endif; ?>
                         </ul>
                     </li>
@@ -74,6 +81,13 @@ if (session_status() === PHP_SESSION_NONE) {
                             <?php if ($role === 'teacher'): ?>
                                 <li><a class="dropdown-item" href="/course/create"><i class="bi bi-plus-circle"></i> Tạo khóa học</a></li>
                                 <li><a class="dropdown-item" href="/course/manage"><i class="bi bi-gear"></i> Quản lý khóa học</a></li>
+                            <?php endif; ?>
+                            <?php if ($role === 'admin'): ?>
+                                <li><a class="dropdown-item" href="/course/approve"><i class="bi bi-check-circle"></i> Phê duyệt khóa học</a></li>
+                                <li><a class="dropdown-item" href="/course/statistics"><i class="bi bi-bar-chart"></i> Thống kê khóa học</a></li>
+                            <?php endif; ?>
+                            <?php if ($role === 'student'): ?>
+                                <li><a class="dropdown-item" href="/course/my_courses"><i class="bi bi-journal-text"></i> Khóa học của tôi</a></li>
                             <?php endif; ?>
                         </ul>
                     </li>
@@ -91,6 +105,7 @@ if (session_status() === PHP_SESSION_NONE) {
                                 <ul class="dropdown-menu dropdown-menu-end">
                                     <li><a class="dropdown-item" href="/user/profile"><i class="bi bi-person"></i> Hồ sơ</a></li>
                                     <li><a class="dropdown-item" href="/notification/list"><i class="bi bi-bell"></i> Thông báo</a></li>
+                                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#changePasswordModal"><i class="bi bi-key"></i> Đổi mật khẩu</a></li>
                                     <?php if ($role === 'admin'): ?>
                                         <li>
                                             <hr class="dropdown-divider">
@@ -110,21 +125,17 @@ if (session_status() === PHP_SESSION_NONE) {
                             </div>
                         </li>
                     <?php else: ?>
-                        <!-- Guest Actions -->
-                        <li class="nav-item ms-lg-2">
-                            <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#loginModal">
-                                <i class="bi bi-box-arrow-in-right"></i> <span class="d-none d-lg-inline">Đăng nhập</span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#registerModal">
-                                <i class="bi bi-person-plus"></i> <span class="d-none d-lg-inline">Đăng ký</span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link">
+                        <!-- Guest Actions Dropdown -->
+                        <li class="nav-item dropdown ms-lg-2">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 <img src="/study_sharing/assets/images/profile.png" alt="Avatar" class="rounded-circle avatar-img" style="height: 30px; width: 30px; object-fit: cover;">
+                                <span class="d-none d-lg-inline">Tài khoản</span>
                             </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#loginModal"><i class="bi bi-box-arrow-in-right"></i> Đăng nhập</a></li>
+                                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#registerModal"><i class="bi bi-person-plus"></i> Đăng ký</a></li>
+                                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#forgotPasswordModal"><i class="bi bi-question-circle"></i> Quên mật khẩu</a></li>
+                            </ul>
                         </li>
                     <?php endif; ?>
                 </ul>
@@ -167,7 +178,13 @@ if (session_status() === PHP_SESSION_NONE) {
                             <input type="password" class="form-control" id="loginPassword" name="password" required>
                             <div class="invalid-feedback">Vui lòng nhập mật khẩu.</div>
                         </div>
-                        <button type="submit" class="btn btn-primary w-100">Đăng nhập</button>
+                        <div class="mb-3">
+                            <a href="#" data-bs-toggle="modal" data-bs-target="#forgotPasswordModal" data-bs-dismiss="modal">Quên mật khẩu?</a>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">
+                            <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                            Đăng nhập
+                        </button>
                     </form>
                 </div>
             </div>
@@ -229,7 +246,72 @@ if (session_status() === PHP_SESSION_NONE) {
                             <input type="text" class="form-control" id="registerAddress" name="address">
                             <div class="invalid-feedback">Vui lòng nhập địa chỉ hợp lệ.</div>
                         </div>
-                        <button type="submit" class="btn btn-primary w-100">Đăng ký</button>
+                        <button type="submit" class="btn btn-primary w-100">
+                            <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                            Đăng ký
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Quên mật khẩu -->
+    <div id="forgotPasswordModal" class="modal fade" tabindex="-1" aria-labelledby="forgotPasswordModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="forgotPasswordModalLabel">Quên mật khẩu</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="forgotPasswordMessage"></div>
+                    <form id="forgotPasswordForm" method="POST" class="needs-validation" novalidate>
+                        <div class="mb-3">
+                            <label for="forgotPasswordEmail" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="forgotPasswordEmail" name="email" required>
+                            <div class="invalid-feedback">Vui lòng nhập email hợp lệ.</div>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100" id="forgotPasswordSubmit">
+                            <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                            Gửi liên kết đặt lại mật khẩu
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Đổi mật khẩu -->
+    <div id="changePasswordModal" class="modal fade" tabindex="-1" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="changePasswordModalLabel">Đổi mật khẩu</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="changePasswordMessage"></div>
+                    <form id="changePasswordForm" method="POST" class="needs-validation" novalidate>
+                        <div class="mb-3">
+                            <label for="currentPassword" class="form-label">Mật khẩu hiện tại</label>
+                            <input type="password" class="form-control" id="currentPassword" name="current_password" required>
+                            <div class="invalid-feedback">Vui lòng nhập mật khẩu hiện tại.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="newPassword" class="form-label">Mật khẩu mới</label>
+                            <input type="password" class="form-control" id="newPassword" name="new_password" required>
+                            <div class="invalid-feedback">Vui lòng nhập mật khẩu mới.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="confirmNewPassword" class="form-label">Xác nhận mật khẩu mới</label>
+                            <input type="password" class="form-control" id="confirmNewPassword" name="confirm_new_password" required>
+                            <div class="invalid-feedback">Vui lòng xác nhận mật khẩu mới.</div>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">
+                            <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                            Đổi mật khẩu
+                        </button>
                     </form>
                 </div>
             </div>

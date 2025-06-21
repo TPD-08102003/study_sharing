@@ -43,23 +43,45 @@ class Account
         return $this->db->lastInsertId();
     }
 
-    public function updateAccount($account_id, $username, $email, $password, $role, $status)
+    public function updateAccount($account_id, $username = null, $email = null, $password = null, $role = null, $status = null)
     {
-        $query = "UPDATE accounts SET username = :username, email = :email, role = :role, status = :status";
-        if ($password) {
-            $query .= ", password = :password";
+        $updates = [];
+        $params = [':account_id' => $account_id];
+
+        if ($username !== null) {
+            $updates[] = 'username = :username';
+            $params[':username'] = $username;
         }
-        $query .= ", updated_at = CURRENT_TIMESTAMP WHERE account_id = :account_id";
-        $stmt = $this->db->prepare($query);
-        $stmt->bindParam(':account_id', $account_id, PDO::PARAM_INT);
-        $stmt->bindParam(':username', $username, PDO::PARAM_STR);
-        $stmt->bindParam(':email', $email, PDO::PARAM_STR);
-        $stmt->bindParam(':role', $role, PDO::PARAM_STR);
-        $stmt->bindParam(':status', $status, PDO::PARAM_STR);
-        if ($password) {
-            $stmt->bindParam(':password', $password, PDO::PARAM_STR);
+        if ($email !== null) {
+            $updates[] = 'email = :email';
+            $params[':email'] = $email;
         }
-        return $stmt->execute();
+        if ($password !== null) {
+            $updates[] = 'password = :password';
+            $params[':password'] = $password;
+        }
+        if ($role !== null) {
+            $updates[] = 'role = :role';
+            $params[':role'] = $role;
+        }
+        if ($status !== null) {
+            $updates[] = 'status = :status';
+            $params[':status'] = $status;
+        }
+
+        if (empty($updates)) {
+            return; // Không có gì để cập nhật
+        }
+
+        $updates[] = 'updated_at = NOW()';
+        $query = "UPDATE accounts SET " . implode(', ', $updates) . " WHERE account_id = :account_id";
+        try {
+            $stmt = $this->db->prepare($query);
+            $stmt->execute($params);
+        } catch (PDOException $e) {
+            error_log("Update account error: " . $e->getMessage());
+            throw $e;
+        }
     }
 
     public function deleteAccount($account_id)
@@ -85,5 +107,21 @@ class Account
         $query = "SELECT COUNT(*) FROM accounts";
         $stmt = $this->db->query($query);
         return $stmt->fetchColumn();
+    }
+
+    public function updatePassword($account_id, $password)
+    {
+        try {
+            $query = "UPDATE accounts
+                    SET password = :password, updated_at = NOW()
+                    WHERE account_id = :account_id";
+            $stmt = $this->db->prepare($query);
+            $stmt->bindParam(':password', $password);
+            $stmt->bindParam(':account_id', $account_id, PDO::PARAM_INT);
+            $stmt->execute();
+        } catch (PDOException $e) {
+            error_log("Update password error: " . $e->getMessage());
+            throw $e;
+        }
     }
 }

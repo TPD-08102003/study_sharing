@@ -22,6 +22,7 @@ class ComposerStaticInitb90a54e9261f74f680f364c4b3330562
         'P' => 
         array (
             'PhpOption\\' => 10,
+            'PHPMailer\\PHPMailer\\' => 20,
         ),
         'G' => 
         array (
@@ -54,6 +55,10 @@ class ComposerStaticInitb90a54e9261f74f680f364c4b3330562
         array (
             0 => __DIR__ . '/..' . '/phpoption/phpoption/src/PhpOption',
         ),
+        'PHPMailer\\PHPMailer\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/phpmailer/phpmailer/src',
+        ),
         'GrahamCampbell\\ResultType\\' => 
         array (
             0 => __DIR__ . '/..' . '/graham-campbell/result-type/src',
@@ -70,6 +75,7 @@ class ComposerStaticInitb90a54e9261f74f680f364c4b3330562
     );
 
     public static $classMap = array (
+        'App\\Account' => __DIR__ . '/../..' . '/models/Account.php',
         'App\\Category' => __DIR__ . '/../..' . '/models/Category.php',
         'App\\Comment' => __DIR__ . '/../..' . '/models/Comment.php',
         'App\\Course' => __DIR__ . '/../..' . '/models/Course.php',
@@ -80,12 +86,10 @@ class ComposerStaticInitb90a54e9261f74f680f364c4b3330562
         'App\\Download' => __DIR__ . '/../..' . '/models/Download.php',
         'App\\Notification' => __DIR__ . '/../..' . '/models/Notification.php',
         'App\\PasswordResetToken' => __DIR__ . '/../..' . '/models/PasswordResetToken.php',
-        'App\\Permission' => __DIR__ . '/../..' . '/models/Permission.php',
         'App\\Rating' => __DIR__ . '/../..' . '/models/Rating.php',
         'App\\Tag' => __DIR__ . '/../..' . '/models/Tag.php',
         'App\\User' => __DIR__ . '/../..' . '/models/User.php',
         'App\\UserController' => __DIR__ . '/../..' . '/controllers/UserController.php',
-        'App\\UserPermission' => __DIR__ . '/../..' . '/models/UserPermission.php',
         'Attribute' => __DIR__ . '/..' . '/symfony/polyfill-php80/Resources/stubs/Attribute.php',
         'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
         'Dotenv\\Dotenv' => __DIR__ . '/..' . '/vlucas/phpdotenv/src/Dotenv.php',
@@ -132,6 +136,13 @@ class ComposerStaticInitb90a54e9261f74f680f364c4b3330562
         'GrahamCampbell\\ResultType\\Error' => __DIR__ . '/..' . '/graham-campbell/result-type/src/Error.php',
         'GrahamCampbell\\ResultType\\Result' => __DIR__ . '/..' . '/graham-campbell/result-type/src/Result.php',
         'GrahamCampbell\\ResultType\\Success' => __DIR__ . '/..' . '/graham-campbell/result-type/src/Success.php',
+        'PHPMailer\\PHPMailer\\DSNConfigurator' => __DIR__ . '/..' . '/phpmailer/phpmailer/src/DSNConfigurator.php',
+        'PHPMailer\\PHPMailer\\Exception' => __DIR__ . '/..' . '/phpmailer/phpmailer/src/Exception.php',
+        'PHPMailer\\PHPMailer\\OAuth' => __DIR__ . '/..' . '/phpmailer/phpmailer/src/OAuth.php',
+        'PHPMailer\\PHPMailer\\OAuthTokenProvider' => __DIR__ . '/..' . '/phpmailer/phpmailer/src/OAuthTokenProvider.php',
+        'PHPMailer\\PHPMailer\\PHPMailer' => __DIR__ . '/..' . '/phpmailer/phpmailer/src/PHPMailer.php',
+        'PHPMailer\\PHPMailer\\POP3' => __DIR__ . '/..' . '/phpmailer/phpmailer/src/POP3.php',
+        'PHPMailer\\PHPMailer\\SMTP' => __DIR__ . '/..' . '/phpmailer/phpmailer/src/SMTP.php',
         'PhpOption\\LazyOption' => __DIR__ . '/..' . '/phpoption/phpoption/src/PhpOption/LazyOption.php',
         'PhpOption\\None' => __DIR__ . '/..' . '/phpoption/phpoption/src/PhpOption/None.php',
         'PhpOption\\Option' => __DIR__ . '/..' . '/phpoption/phpoption/src/PhpOption/Option.php',
