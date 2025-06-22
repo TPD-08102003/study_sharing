@@ -12,10 +12,14 @@ $courseModel = new Course($pdo);
 $notificationModel = new Notification($pdo);
 $userModel = new User($pdo);
 
-$latestDocuments = $documentModel->getAllDocuments();
+$latestDocuments = array_slice($documentModel->getAllDocuments(), 0, 6);
 $categories = $categoryModel->getAllCategories();
-$courses = $courseModel->getAllCourses();
-$notifications = isset($_SESSION['account_id']) ? $notificationModel->getNotificationsByUserId($_SESSION['account_id']) : [];
+$courses = array_slice($courseModel->getAllCourses(), 0, 6);
+$notifications = [];
+if (isset($_SESSION['account_id'])) {
+    $allNotifications = $notificationModel->getNotificationsByUserId($_SESSION['account_id']);
+    $notifications = array_slice($allNotifications, 0, 5);
+}
 ?>
 
 <div class="container py-4">
