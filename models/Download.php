@@ -33,7 +33,7 @@ class Download
 
     public function recordDownload($document_id, $account_id)
     {
-        $query = "INSERT INTO downloads (document_id, account_id) VALUES (:document_id, :account_id)";
+        $query = "INSERT INTO downloads (document_id, account_id, download_date) VALUES (:document_id, :account_id, NOW())";
         $stmt = $this->db->prepare($query);
         $stmt->bindParam(':document_id', $document_id, PDO::PARAM_INT);
         $stmt->bindParam(':account_id', $account_id, PDO::PARAM_INT);

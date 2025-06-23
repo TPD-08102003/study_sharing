@@ -25,70 +25,151 @@ class DocumentController
 
     public function list()
     {
+        // Danh sách loại file hợp lệ
         $valid_file_types = ['pdf', 'doc', 'docx', 'ppt', 'pptx'];
+
+        // Lấy các tham số từ query string
         $query = isset($_GET['query']) ? trim($_GET['query']) : '';
         $category_id = isset($_GET['category_id']) ? (int)$_GET['category_id'] : 0;
         $file_type = (isset($_GET['file_type']) && in_array(trim($_GET['file_type']), $valid_file_types)) ? trim($_GET['file_type']) : '';
         $page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
         $perPage = 10;
 
+        // Xây dựng câu lệnh SQL cho danh sách tài liệu
         $sql = "SELECT d.*, c.category_name, u.full_name 
-            FROM documents d 
-            LEFT JOIN categories c ON d.category_id = c.category_id
-            LEFT JOIN users u ON d.account_id = u.user_id";
-        $params = [];
+                FROM documents d 
+                LEFT JOIN categories c ON d.category_id = c.category_id
+                LEFT JOIN users u ON d.account_id = u.user_id";
+        $bindParams = [];
+        $hasWhere = false;
+
+        // Điều kiện visibility dựa trên trạng thái đăng nhập
         if (isset($_SESSION['account_id'])) {
             $sql .= " WHERE (d.visibility = 'public' OR d.account_id = :account_id)";
-            $params[':account_id'] = $_SESSION['account_id'];
+            $bindParams[':account_id'] = $_SESSION['account_id'];
+            $hasWhere = true;
         } else {
             $sql .= " WHERE d.visibility = 'public'";
+            $hasWhere = true;
         }
 
-        if ($query) {
-            $sql .= " AND (d.title LIKE :query OR d.description LIKE :query)";
-            $params[':query'] = "%$query%";
+        // Điều kiện tìm kiếm theo từ khóa
+        if ($query !== '') {
+            $sql .= $hasWhere ? " AND " : " WHERE ";
+            $sql .= "(d.title LIKE :query1 OR d.description LIKE :query2)";
+            $bindParams[':query1'] = "%$query%";
+            $bindParams[':query2'] = "%$query%";
+            $hasWhere = true;
         }
+
+        // Điều kiện lọc theo danh mục
         if ($category_id > 0) {
-            $sql .= " AND d.category_id = :category_id";
-            $params[':category_id'] = $category_id;
-        }
-        if ($file_type) {
-            $sql .= " AND d.file_path LIKE :file_type";
-            $params[':file_type'] = "%.$file_type";
+            $sql .= $hasWhere ? " AND " : " WHERE ";
+            $sql .= "d.category_id = :category_id";
+            $bindParams[':category_id'] = $category_id;
+            $hasWhere = true;
         }
 
-        $countSql = str_replace("SELECT d.*, c.category_name, u.full_name", "SELECT COUNT(*)", $sql);
-        $stmt = $this->db->prepare($countSql);
-        $stmt->execute($params);
-        $total = $stmt->fetchColumn();
+        // Điều kiện lọc theo loại file
+        if ($file_type !== '') {
+            $sql .= $hasWhere ? " AND " : " WHERE ";
+            $sql .= "d.file_path LIKE :file_type";
+            $bindParams[':file_type'] = "%.$file_type";
+            $hasWhere = true;
+        }
 
+        // Xây dựng câu lệnh SQL để đếm tổng số bản ghi
+        $countSql = "SELECT COUNT(*) FROM documents d";
+        $countBindParams = [];
+        $hasCountWhere = false;
+
+        // Điều kiện visibility cho câu lệnh đếm
+        if (isset($_SESSION['account_id'])) {
+            $countSql .= " WHERE (d.visibility = 'public' OR d.account_id = :account_id)";
+            $countBindParams[':account_id'] = $_SESSION['account_id'];
+            $hasCountWhere = true;
+        } else {
+            $countSql .= " WHERE d.visibility = 'public'";
+            $hasCountWhere = true;
+        }
+
+        // Điều kiện tìm kiếm theo từ khóa cho câu lệnh đếm
+        if ($query !== '') {
+            $countSql .= $hasCountWhere ? " AND " : " WHERE ";
+            $countSql .= "(d.title LIKE :query1 OR d.description LIKE :query2)";
+            $countBindParams[':query1'] = "%$query%";
+            $countBindParams[':query2'] = "%$query%";
+            $hasCountWhere = true;
+        }
+
+        // Điều kiện lọc theo danh mục cho câu lệnh đếm
+        if ($category_id > 0) {
+            $countSql .= $hasCountWhere ? " AND " : " WHERE ";
+            $countSql .= "d.category_id = :category_id";
+            $countBindParams[':category_id'] = $category_id;
+            $hasCountWhere = true;
+        }
+
+        // Điều kiện lọc theo loại file cho câu lệnh đếm
+        if ($file_type !== '') {
+            $countSql .= $hasCountWhere ? " AND " : " WHERE ";
+            $countSql .= "d.file_path LIKE :file_type";
+            $countBindParams[':file_type'] = "%.$file_type";
+            $hasCountWhere = true;
+        }
+
+        // In log để debug
+        echo "<script>console.log('Count SQL: ' + " . json_encode($countSql) . ");</script>";
+        echo "<script>console.log('Count Bind Params: ' + " . json_encode($countBindParams) . ");</script>";
+        echo "<script>console.log('SQL: ' + " . json_encode($sql) . ");</script>";
+        echo "<script>console.log('Bind Params: ' + " . json_encode($bindParams) . ");</script>";
+
+        // Chuẩn bị và thực thi câu lệnh đếm
+        $countStmt = $this->db->prepare($countSql);
+        foreach ($countBindParams as $key => $value) {
+            $countStmt->bindValue($key, $value, is_int($value) ? PDO::PARAM_INT : PDO::PARAM_STR);
+        }
+        $countStmt->execute();
+        $total = $countStmt->fetchColumn();
+
+        // Thêm phân trang vào câu lệnh SQL chính
         $sql .= " ORDER BY d.upload_date DESC LIMIT :offset, :perPage";
         $stmt = $this->db->prepare($sql);
-        foreach ($params as $key => $value) {
-            $stmt->bindValue($key, $value);
+        foreach ($bindParams as $key => $value) {
+            $stmt->bindValue($key, $value, is_int($value) ? PDO::PARAM_INT : PDO::PARAM_STR);
         }
         $stmt->bindValue(':offset', ($page - 1) * $perPage, PDO::PARAM_INT);
         $stmt->bindValue(':perPage', $perPage, PDO::PARAM_INT);
         $stmt->execute();
         $documents = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+        // Lấy danh sách danh mục
         $categories = $this->category->getAllCategories();
 
+        // Xử lý tags và rating cho từng tài liệu
         foreach ($documents as &$doc) {
-            $tags = $this->db->prepare("SELECT t.tag_name FROM document_tags dt JOIN tags t ON dt.tag_id = t.tag_id WHERE dt.document_id = :document_id");
-            $tags->bindValue(':document_id', $doc['document_id'], PDO::PARAM_INT);
-            $tags->execute();
-            $doc['tags'] = $tags->fetchAll(PDO::FETCH_COLUMN);
+            // Lấy tags
+            $tagsStmt = $this->db->prepare("SELECT t.tag_name FROM document_tags dt JOIN tags t ON dt.tag_id = t.tag_id WHERE dt.document_id = :document_id");
+            $tagsStmt->bindValue(':document_id', $doc['document_id'], PDO::PARAM_INT);
+            $tagsStmt->execute();
+            $doc['tags'] = $tagsStmt->fetchAll(PDO::FETCH_COLUMN);
+
+            // Tính trung bình rating
+            $ratingStmt = $this->db->prepare("SELECT AVG(rating_value) as avg_rating FROM ratings WHERE document_id = :document_id");
+            $ratingStmt->bindValue(':document_id', $doc['document_id'], PDO::PARAM_INT);
+            $ratingStmt->execute();
+            $rating = $ratingStmt->fetch(PDO::FETCH_ASSOC);
+            $doc['avg_rating'] = $rating['avg_rating'] ? round($rating['avg_rating'], 1) : 0;
         }
         unset($doc);
 
+        // Tính tổng số trang
         $totalPages = ceil($total / $perPage);
 
-        // Truyền các biến vào view
+        // Chuẩn bị dữ liệu cho view
         $title = 'Danh sách tài liệu';
         $layout = 'layout.php';
         ob_start();
-        // Đảm bảo truyền tất cả các biến cần thiết
         require __DIR__ . '/../views/document/list.php';
         $content = ob_get_clean();
         $pdo = $this->db;
@@ -163,6 +244,99 @@ class DocumentController
             echo json_encode(['success' => true, 'message' => 'Bình luận đã được gửi']);
         } else {
             echo json_encode(['success' => false, 'message' => 'Lỗi khi gửi bình luận']);
+        }
+    }
+
+    public function rateDocument()
+    {
+        header('Content-Type: application/json');
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['success' => false, 'message' => 'Method not allowed']);
+            exit;
+        }
+
+        if (!isset($_SESSION['account_id'])) {
+            echo json_encode(['success' => false, 'message' => 'Vui lòng đăng nhập để đánh giá']);
+            exit;
+        }
+
+        $document_id = isset($_POST['document_id']) ? (int)$_POST['document_id'] : 0;
+        $rating_value = isset($_POST['rating_value']) ? (int)$_POST['rating_value'] : 0;
+        $account_id = $_SESSION['account_id'];
+
+        if ($document_id <= 0 || $rating_value < 1 || $rating_value > 5) {
+            echo json_encode(['success' => false, 'message' => 'Dữ liệu không hợp lệ']);
+            exit;
+        }
+
+        // Kiểm tra tài liệu tồn tại
+        $document = $this->document->getDocumentById($document_id);
+        if (!$document) {
+            echo json_encode(['success' => false, 'message' => 'Tài liệu không tồn tại']);
+            exit;
+        }
+
+        $rating = new Rating($this->db);
+
+        // Kiểm tra xem người dùng đã đánh giá chưa
+        $existingRatingStmt = $this->db->prepare("SELECT rating_id FROM ratings WHERE document_id = :document_id AND account_id = :account_id");
+        $existingRatingStmt->bindValue(':document_id', $document_id, PDO::PARAM_INT);
+        $existingRatingStmt->bindValue(':account_id', $account_id, PDO::PARAM_INT);
+        $existingRatingStmt->execute();
+        $existingRating = $existingRatingStmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($existingRating) {
+            // Cập nhật rating hiện có
+            $updateStmt = $this->db->prepare("UPDATE ratings SET rating_value = :rating_value, created_at = NOW() WHERE rating_id = :rating_id");
+            $updateStmt->bindValue(':rating_value', $rating_value, PDO::PARAM_INT);
+            $updateStmt->bindValue(':rating_id', $existingRating['rating_id'], PDO::PARAM_INT);
+            $success = $updateStmt->execute();
+        } else {
+            // Thêm rating mới
+            $success = $rating->createRating($document_id, $account_id, $rating_value);
+        }
+
+        if ($success) {
+            echo json_encode(['success' => true, 'message' => 'Đánh giá đã được gửi']);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Lỗi khi gửi đánh giá']);
+        }
+    }
+
+    public function recordDownload()
+    {
+        header('Content-Type: application/json');
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['success' => false, 'message' => 'Method not allowed']);
+            exit;
+        }
+
+        if (!isset($_SESSION['account_id'])) {
+            echo json_encode(['success' => false, 'message' => 'Vui lòng đăng nhập để ghi nhận tải xuống']);
+            exit;
+        }
+
+        $document_id = isset($_POST['document_id']) ? (int)$_POST['document_id'] : 0;
+        $account_id = $_SESSION['account_id'];
+
+        if ($document_id <= 0) {
+            echo json_encode(['success' => false, 'message' => 'Dữ liệu không hợp lệ']);
+            exit;
+        }
+
+        $document = $this->document->getDocumentById($document_id);
+        if (!$document) {
+            echo json_encode(['success' => false, 'message' => 'Tài liệu không tồn tại']);
+            exit;
+        }
+
+        $download = new Download($this->db);
+        $success = $download->recordDownload($document_id, $account_id);
+
+        if ($success) {
+            echo json_encode(['success' => true, 'message' => 'Tải xuống đã được ghi nhận']);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Lỗi khi ghi nhận tải xuống']);
         }
     }
 }

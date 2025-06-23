@@ -33,7 +33,7 @@ class Rating
 
     public function createRating($document_id, $account_id, $rating_value)
     {
-        $query = "INSERT INTO ratings (document_id, account_id, rating_value) VALUES (:document_id, :account_id, :rating_value)";
+        $query = "INSERT INTO ratings (document_id, account_id, rating_value, created_at) VALUES (:document_id, :account_id, :rating_value, NOW())";
         $stmt = $this->db->prepare($query);
         $stmt->bindParam(':document_id', $document_id, PDO::PARAM_INT);
         $stmt->bindParam(':account_id', $account_id, PDO::PARAM_INT);

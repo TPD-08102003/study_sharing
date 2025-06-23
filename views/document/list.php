@@ -61,6 +61,14 @@ $totalPages = $totalPages ?? 1;
                             <p class="card-text"><small class="text-muted">Người tải lên: <?php echo htmlspecialchars($doc['full_name'] ?? 'Ẩn danh'); ?></small></p>
                             <p class="card-text"><small class="text-muted">Ngày tải: <?php echo date('d/m/Y', strtotime($doc['upload_date'])); ?></small></p>
                             <p class="card-text">
+                                Rating: <?php echo $doc['avg_rating'] ? $doc['avg_rating'] . '/5' : 'Chưa có đánh giá'; ?>
+                                <?php for ($i = 1; $i <= 5; $i++): ?>
+                                    <span class="text-warning" style="cursor: default;">
+                                        ★<?php echo ($i <= $doc['avg_rating']) ? '★' : ''; ?>
+                                    </span>
+                                <?php endfor; ?>
+                            </p>
+                            <p class="card-text">
                                 <?php foreach ($doc['tags'] as $tag): ?>
                                     <span class="badge bg-secondary"><?php echo htmlspecialchars($tag); ?></span>
                                 <?php endforeach; ?>
@@ -94,4 +102,4 @@ $totalPages = $totalPages ?? 1;
     <?php endif; ?>
 </div>
 
-<script src="/study_sharing/assets/js/document.js"></script>
+<script src="/study_sharing/assets/js/list.js"></script>
