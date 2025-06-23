@@ -2,6 +2,7 @@ function getBaseURL() {
     return window.location.pathname.split('/').slice(0, -1).join('/') + '/';
 }
 
+// Xử lý form đăng nhập
 document.getElementById('loginForm').addEventListener('submit', function(e) {
     e.preventDefault();
     const form = this;

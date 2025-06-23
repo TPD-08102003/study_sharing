@@ -36,9 +36,9 @@ if (session_status() === PHP_SESSION_NONE) {
             <!-- Navbar Content -->
             <div class="collapse navbar-collapse" id="navbarContent">
                 <!-- Thanh tìm kiếm -->
-                <form class="d-flex mx-lg-3 my-2 my-lg-0 search-container" role="search" action="/search" method="GET">
+                <form class="d-flex mx-lg-3 my-2 my-lg-0 search-container" role="search" action="/study_sharing/document/list" method="GET">
                     <div class="input-group">
-                        <input class="form-control form-control-sm" type="search" name="query" placeholder="Tìm kiếm..." aria-label="Search">
+                        <input class="form-control form-control-sm" type="search" name="query" placeholder="Tìm kiếm tài liệu..." aria-label="Search">
                         <button class="btn btn-light btn-sm" type="submit"><i class="bi bi-search"></i></button>
                     </div>
                 </form>
@@ -57,13 +57,13 @@ if (session_status() === PHP_SESSION_NONE) {
                             <i class="bi bi-file-earmark-text-fill"></i> Tài liệu
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="/documents/list"><i class="bi bi-collection"></i> Xem tất cả</a></li>
+                            <li><a class="dropdown-item" href="/study_sharing/document/list"><i class="bi bi-collection"></i> Xem tất cả</a></li>
                             <?php if ($user && in_array($role, ['teacher', 'student'])): ?>
-                                <li><a class="dropdown-item" href="/document/upload"><i class="bi bi-upload"></i> Tải lên</a></li>
-                                <li><a class="dropdown-item" href="/document/delete"><i class="bi bi-trash"></i> Quản lý</a></li>
+                                <li><a class="dropdown-item" href="/study_sharing/document/upload"><i class="bi bi-upload"></i> Tải lên</a></li>
+                                <li><a class="dropdown-item" href="/study_sharing/document/delete"><i class="bi bi-trash"></i> Quản lý</a></li>
                             <?php endif; ?>
                             <?php if ($role === 'student'): ?>
-                                <li><a class="dropdown-item" href="/document/my_documents"><i class="bi bi-journal-bookmark"></i> Tài liệu của tôi</a></li>
+                                <li><a class="dropdown-item" href="/study_sharing/document/my_documents"><i class="bi bi-journal-bookmark"></i> Tài liệu của tôi</a></li>
                             <?php endif; ?>
                         </ul>
                     </li>
@@ -73,13 +73,13 @@ if (session_status() === PHP_SESSION_NONE) {
                             <i class="bi bi-book-fill"></i> Khóa học
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="/courses/list"><i class="bi bi-collection"></i> Xem tất cả</a></li>
+                            <li><a class="dropdown-item" href="/study_sharing/courses/list"><i class="bi bi-collection"></i> Xem tất cả</a></li>
                             <?php if ($role === 'teacher'): ?>
-                                <li><a class="dropdown-item" href="/course/create"><i class="bi bi-plus-circle"></i> Tạo khóa học</a></li>
-                                <li><a class="dropdown-item" href="/course/manage"><i class="bi bi-gear"></i> Quản lý khóa học</a></li>
+                                <li><a class="dropdown-item" href="/study_sharing/course/create"><i class="bi bi-plus-circle"></i> Tạo khóa học</a></li>
+                                <li><a class="dropdown-item" href="/study_sharing/course/manage"><i class="bi bi-gear"></i> Quản lý khóa học</a></li>
                             <?php endif; ?>
                             <?php if ($role === 'student'): ?>
-                                <li><a class="dropdown-item" href="/course/my_courses"><i class="bi bi-journal-text"></i> Khóa học của tôi</a></li>
+                                <li><a class="dropdown-item" href="/study_sharing/course/my_courses"><i class="bi bi-journal-text"></i> Khóa học của tôi</a></li>
                             <?php endif; ?>
                         </ul>
                     </li>
@@ -95,8 +95,8 @@ if (session_status() === PHP_SESSION_NONE) {
                                     <img src="<?php echo $avatar; ?>" alt="Avatar" class="avatar-img rounded-circle" style="height: 36px; width: 36px; object-fit: cover;">
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end">
-                                    <li><a class="dropdown-item" href="/user/profile"><i class="bi bi-person"></i> Hồ sơ</a></li>
-                                    <li><a class="dropdown-item" href="/notification/list"><i class="bi bi-bell"></i> Thông báo</a></li>
+                                    <li><a class="dropdown-item" href="/study_sharing/user/profile"><i class="bi bi-person"></i> Hồ sơ</a></li>
+                                    <li><a class="dropdown-item" href="/study_sharing/notification/list"><i class="bi bi-bell"></i> Thông báo</a></li>
                                     <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#changePasswordModal"><i class="bi bi-key"></i> Đổi mật khẩu</a></li>
                                     <li>
                                         <hr class="dropdown-divider">
@@ -299,6 +299,13 @@ if (session_status() === PHP_SESSION_NONE) {
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
     <script src="/study_sharing/assets/js/index.js"></script>
+    <?php
+    // Bao gồm document.js cho các trang tài liệu
+    $uri = trim(str_replace('/study_sharing', '', parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH)), '/');
+    if (in_array($uri, ['document/list', 'document/detail'])) {
+        echo '<script src="/study_sharing/assets/js/document.js"></script>';
+    }
+    ?>
 </body>
 
 </html>

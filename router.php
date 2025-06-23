@@ -8,6 +8,7 @@ require_once __DIR__ . '/vendor/autoload.php';
 require_once __DIR__ . '/config/db.php';
 
 use App\UserController;
+use App\DocumentController;
 
 session_start();
 
@@ -37,6 +38,12 @@ $staticRoutes = [
         'method' => 'GET',
         'view' => __DIR__ . '/views/home/index.php',
         'title' => 'Trang chủ',
+        'layout' => 'layout.php'
+    ],
+    'document/list' => [
+        'method' => 'GET',
+        'view' => __DIR__ . '/views/document/list.php',
+        'title' => 'Danh sách tài liệu',
         'layout' => 'layout.php'
     ],
     'document/approve' => [
@@ -98,6 +105,7 @@ $staticRoutes = [
 // Định nghĩa các controller được phép
 $allowedControllers = [
     'UserController' => UserController::class,
+    'DocumentController' => DocumentController::class,
 ];
 
 // Xử lý tuyến đường
