@@ -40,12 +40,6 @@ $staticRoutes = [
         'title' => 'Trang chủ',
         'layout' => 'layout.php'
     ],
-    'document/list' => [
-        'method' => 'GET',
-        'view' => __DIR__ . '/views/document/list.php',
-        'title' => 'Danh sách tài liệu',
-        'layout' => 'layout.php'
-    ],
     'document/approve' => [
         'method' => 'GET',
         'view' => __DIR__ . '/views/document/approve.php',

@@ -24,7 +24,7 @@ class Comment
 
     public function getCommentsByDocumentId($document_id)
     {
-        $query = "SELECT * FROM comments WHERE document_id = :document_id";
+        $query = "SELECT * FROM comments WHERE document_id = :document_id ORDER BY comment_date DESC";
         $stmt = $this->db->prepare($query);
         $stmt->bindParam(':document_id', $document_id, PDO::PARAM_INT);
         $stmt->execute();

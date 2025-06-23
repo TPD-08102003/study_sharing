@@ -1,3 +1,26 @@
+<style>
+    .pdf-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        /* Đảm bảo bắt đầu từ đầu */
+        overflow: auto;
+        /* Cuộn khi vượt quá */
+        max-width: 100%;
+        height: 600px;
+        /* Giữ chiều cao cố định */
+        position: relative;
+        /* Đảm bảo cuộn đúng */
+    }
+
+    .pdf-container canvas {
+        margin: 0 auto;
+        display: block;
+        max-width: 100%;
+        /* Giới hạn chiều rộng */
+    }
+</style>
 <div class="container">
     <h1 class="mb-4"><?php echo htmlspecialchars($document['title']); ?></h1>
 
@@ -13,7 +36,7 @@
                     <span class="badge bg-secondary"><?php echo htmlspecialchars($tag); ?></span>
                 <?php endforeach; ?>
             </p>
-            <a href="<?php echo htmlspecialchars($document['file_path']); ?>" class="btn btn-primary" download>Tải xuống</a>
+            <a href="/study_sharing/uploads/<?php echo htmlspecialchars($document['file_path']); ?>" class="btn btn-primary" download>Tải xuống</a>
         </div>
     </div>
 
@@ -21,11 +44,19 @@
     <div class="card mb-4">
         <div class="card-body">
             <h5 class="card-title">Nội dung tài liệu</h5>
-            <?php
-            $file_ext = strtolower(pathinfo($document['file_path'], PATHINFO_EXTENSION));
-            if ($file_ext === 'pdf'):
-            ?>
-                <iframe src="<?php echo htmlspecialchars($document['file_path']); ?>" style="width: 100%; height: 600px;" frameborder="0"></iframe>
+            <?php if ($file_ext === 'pdf'): ?>
+                <div class="mb-3">
+                    <label for="versionSelect" class="form-label">Chọn version:</label>
+                    <select id="versionSelect" class="form-select" onchange="loadVersion(this.value)">
+                        <option value="/study_sharing/uploads/<?php echo htmlspecialchars($document['file_path']); ?>">Version hiện tại</option>
+                        <?php foreach ($versions as $version): ?>
+                            <option value="/study_sharing/uploads/<?php echo htmlspecialchars($version['file_path']); ?>">
+                                Version <?php echo htmlspecialchars($version['version_number']); ?> (<?php echo htmlspecialchars($version['change_note']); ?>)
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div id="pdf-container" class="pdf-container" style="height: 600px;"></div>
             <?php else: ?>
                 <p>Không thể hiển thị trực tiếp. Vui lòng tải xuống để xem nội dung.</p>
             <?php endif; ?>
@@ -75,3 +106,46 @@
         </div>
     </div>
 </div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+<script>
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const pdfContainer = document.getElementById('pdf-container');
+        const pdfUrl = '/study_sharing/uploads/<?php echo htmlspecialchars($document['file_path']); ?>';
+
+        // Tải và hiển thị PDF
+        pdfjsLib.getDocument(pdfUrl).promise.then(function(pdf) {
+            const numPages = pdf.numPages;
+
+            for (let pageNum = 1; pageNum <= numPages; pageNum++) {
+                pdf.getPage(pageNum).then(function(page) {
+                    const scale = 1.5;
+                    const viewport = page.getViewport({
+                        scale: scale
+                    });
+                    const canvas = document.createElement('canvas');
+                    const context = canvas.getContext('2d');
+                    canvas.height = viewport.height;
+                    canvas.width = viewport.width;
+                    canvas.style.maxWidth = '100%';
+                    pdfContainer.appendChild(canvas);
+
+                    page.render({
+                        canvasContext: context,
+                        viewport: viewport
+                    });
+                });
+            }
+
+            // Cuộn về đầu sau khi tất cả trang được tải
+            pdfContainer.scrollTop = 0;
+        }).catch(function(error) {
+            console.error('Error loading PDF:', error);
+            pdfContainer.innerHTML = '<p>Tài liệu không thể hiển thị. <a href="' + pdfUrl + '" download>Vui lòng tải xuống để xem.</a></p>';
+        });
+    });
+</script>
+
+<script src="/study_sharing/assets/js/document.js"></script>

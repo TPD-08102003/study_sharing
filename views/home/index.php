@@ -54,7 +54,7 @@ if (isset($_SESSION['account_id'])) {
                             <div class="card h-100">
                                 <div class="card-body">
                                     <h5 class="card-title text-primary">
-                                        <a href="/study_sharing/document/<?php echo $doc['document_id']; ?>" class="text-decoration-none">
+                                        <a href="/study_sharing/document/detail/<?php echo $doc['document_id']; ?>" class="text-decoration-none">
                                             <?php echo htmlspecialchars($doc['title']); ?>
                                         </a>
                                     </h5>
@@ -63,7 +63,7 @@ if (isset($_SESSION['account_id'])) {
                                     $user = $userModel->getUserById($doc['account_id']);
                                     $uploaderName = $user ? htmlspecialchars($user['full_name']) : 'Không xác định';
                                     ?>
-                                    <p class="card-text text-small text-muted">Đăng bởi: <?php echo $uploaderName; ?> - <?php echo $doc['upload_date']; ?></p>
+                                    <p class="card-text text-small text-muted">Đăng bởi: <?php echo $uploaderName; ?> - <?php echo date('d/m/Y', strtotime($doc['upload_date'])); ?></p>
                                 </div>
                             </div>
                         </div>
@@ -93,7 +93,7 @@ if (isset($_SESSION['account_id'])) {
                                     $creator = $userModel->getUserById($course['creator_id']);
                                     $creatorName = $creator ? htmlspecialchars($creator['full_name']) : 'Không xác định';
                                     ?>
-                                    <p class="card-text text-small text-muted">Tạo bởi: <?php echo $creatorName; ?> - <?php echo $course['created_at']; ?></p>
+                                    <p class="card-text text-small text-muted">Tạo bởi: <?php echo $creatorName; ?> - <?php echo date('d/m/Y', strtotime($course['created_at'])); ?></p>
                                 </div>
                             </div>
                         </div>

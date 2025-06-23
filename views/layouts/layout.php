@@ -299,12 +299,6 @@ if (session_status() === PHP_SESSION_NONE) {
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
     <script src="/study_sharing/assets/js/index.js"></script>
-    <?php
-    // Bao gồm document.js cho các trang tài liệu
-    $uri = trim(str_replace('/study_sharing', '', parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH)), '/');
-    if (in_array($uri, ['document/list', 'document/detail'])) {
-        echo '<script src="/study_sharing/assets/js/document.js"></script>';
-    }
     ?>
 </body>
 

@@ -1,3 +1,12 @@
+<?php
+$query = $query ?? '';
+$category_id = $category_id ?? 0;
+$file_type = $file_type ?? '';
+$documents = $documents ?? [];
+$categories = $categories ?? [];
+$page = $page ?? 1;
+$totalPages = $totalPages ?? 1;
+?>
 <div class="container">
     <h1 class="mb-4">Danh sách tài liệu</h1>
 
@@ -23,11 +32,11 @@
             <div class="col-md-3">
                 <select class="form-select" name="file_type">
                     <option value="">Tất cả loại file</option>
-                    <option value="pdf" <?php echo ($file_type == 'pdf') ? 'selected' : ''; ?>>PDF</option>
-                    <option value="doc" <?php echo ($file_type == 'doc') ? 'selected' : ''; ?>>DOC</option>
-                    <option value="docx" <?php echo ($file_type == 'docx') ? 'selected' : ''; ?>>DOCX</option>
-                    <option value="ppt" <?php echo ($file_type == 'ppt') ? 'selected' : ''; ?>>PPT</option>
-                    <option value="pptx" <?php echo ($file_type == 'pptx') ? 'selected' : ''; ?>>PPTX</option>
+                    <option value="pdf" <?php echo (isset($file_type) && $file_type == 'pdf') ? 'selected' : ''; ?>>PDF</option>
+                    <option value="doc" <?php echo (isset($file_type) && $file_type == 'doc') ? 'selected' : ''; ?>>DOC</option>
+                    <option value="docx" <?php echo (isset($file_type) && $file_type == 'docx') ? 'selected' : ''; ?>>DOCX</option>
+                    <option value="ppt" <?php echo (isset($file_type) && $file_type == 'ppt') ? 'selected' : ''; ?>>PPT</option>
+                    <option value="pptx" <?php echo (isset($file_type) && $file_type == 'pptx') ? 'selected' : ''; ?>>PPTX</option>
                 </select>
             </div>
         </div>
@@ -84,3 +93,5 @@
         </nav>
     <?php endif; ?>
 </div>
+
+<script src="/study_sharing/assets/js/document.js"></script>

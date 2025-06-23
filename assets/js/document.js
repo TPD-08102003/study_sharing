@@ -78,3 +78,44 @@
         }, false);
     }
 })();
+
+function loadVersion(pdfUrl) {
+    const pdfContainer = document.getElementById('pdf-container');
+    pdfContainer.innerHTML = ''; // Xóa nội dung cũ
+
+    pdfjsLib.getDocument(pdfUrl).promise.then(function(pdf) {
+        const numPages = pdf.numPages;
+
+        for (let pageNum = 1; pageNum <= numPages; pageNum++) {
+            pdf.getPage(pageNum).then(function(page) {
+                const scale = 1.5;
+                const viewport = page.getViewport({ scale: scale });
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+                canvas.style.maxWidth = '100%';
+                pdfContainer.appendChild(canvas);
+
+                page.render({
+                    canvasContext: context,
+                    viewport: viewport
+                });
+            });
+        }
+
+        pdfContainer.scrollTop = 0; // Cuộn về đầu
+    }).catch(function(error) {
+        console.error('Error loading PDF:', error);
+        pdfContainer.innerHTML = '<p>Tài liệu không thể hiển thị. <a href="' + pdfUrl + '" download>Vui lòng tải xuống để xem.</a></p>';
+    });
+}
+
+// Gọi lần đầu với version hiện tại
+document.addEventListener('DOMContentLoaded', function() {
+    // Lấy đường dẫn file từ một biến toàn cục hoặc data attribute
+    const filePath = window.documentFilePath || '';
+    if (filePath) {
+        loadVersion('/study_sharing/uploads/' + filePath);
+    }
+});
