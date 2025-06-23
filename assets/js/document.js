@@ -1,4 +1,3 @@
-// Xử lý form tìm kiếm và lọc
 (function() {
     'use strict';
     const documentFilterForm = document.querySelector('#documentFilterForm');
