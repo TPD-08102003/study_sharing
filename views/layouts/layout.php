@@ -165,6 +165,10 @@ if (session_status() === PHP_SESSION_NONE) {
                         </button>
                     </form>
                 </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-link" data-bs-toggle="modal" data-bs-target="#registerModal" data-bs-dismiss="modal">Đăng ký tài khoản</button>
+                    <button type="button" class="btn btn-link" data-bs-toggle="modal" data-bs-target="#forgotPasswordModal" data-bs-dismiss="modal">Quên mật khẩu?</button>
+                </div>
             </div>
         </div>
     </div>
@@ -230,6 +234,9 @@ if (session_status() === PHP_SESSION_NONE) {
                         </button>
                     </form>
                 </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-link" data-bs-toggle="modal" data-bs-target="#loginModal" data-bs-dismiss="modal">Đã có tài khoản? Đăng nhập</button>
+                </div>
             </div>
         </div>
     </div>
@@ -255,6 +262,9 @@ if (session_status() === PHP_SESSION_NONE) {
                             Gửi liên kết đặt lại mật khẩu
                         </button>
                     </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-link" data-bs-toggle="modal" data-bs-target="#loginModal" data-bs-dismiss="modal">Quay lại đăng nhập</button>
                 </div>
             </div>
         </div>
@@ -299,7 +309,6 @@ if (session_status() === PHP_SESSION_NONE) {
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
     <script src="/study_sharing/assets/js/index.js"></script>
-    ?>
 </body>
 
 </html>
