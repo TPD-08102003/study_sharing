@@ -9,6 +9,9 @@ require_once __DIR__ . '/config/db.php';
 
 use App\UserController;
 use App\DocumentController;
+use App\HomeController;
+use App\HomeAdminController;
+use App\AuthController;
 
 session_start();
 
@@ -22,84 +25,21 @@ error_log("URI: $uri, Method: $method");
 
 // Định nghĩa các tuyến đường tĩnh
 $staticRoutes = [
-    'auth/reset_password' => [
-        'method' => 'GET',
-        'view' => __DIR__ . '/views/auth/reset_password.php',
-        'title' => 'Đặt lại mật khẩu',
-        'layout' => 'layout.php'
-    ],
-    'HomeAdmin/index' => [
-        'method' => 'GET',
-        'view' => __DIR__ . '/views/HomeAdmin/index.php',
-        'title' => 'Bảng điều khiển Admin',
-        'layout' => 'admin_layout.php'
-    ],
-    '' => [ // Trang chủ
-        'method' => 'GET',
-        'view' => __DIR__ . '/views/home/index.php',
-        'title' => 'Trang chủ',
-        'layout' => 'layout.php'
-    ],
-    'document/approve' => [
-        'method' => 'GET',
-        'view' => __DIR__ . '/views/document/approve.php',
-        'title' => 'Phê duyệt tài liệu',
-        'layout' => 'admin_layout.php'
-    ],
-    'document/statistics' => [
-        'method' => 'GET',
-        'view' => __DIR__ . '/views/document/statistics.php',
-        'title' => 'Thống kê tài liệu',
-        'layout' => 'admin_layout.php'
-    ],
-    'document/my_documents' => [
-        'method' => 'GET',
-        'view' => __DIR__ . '/views/document/my_documents.php',
-        'title' => 'Tài liệu của tôi',
-        'layout' => 'layout.php'
-    ],
-    'course/approve' => [
-        'method' => 'GET',
-        'view' => __DIR__ . '/views/course/approve.php',
-        'title' => 'Phê duyệt khóa học',
-        'layout' => 'admin_layout.php'
-    ],
-    'course/statistics' => [
-        'method' => 'GET',
-        'view' => __DIR__ . '/views/course/statistics.php',
-        'title' => 'Thống kê khóa học',
-        'layout' => 'admin_layout.php'
-    ],
-    'course/my_courses' => [
-        'method' => 'GET',
-        'view' => __DIR__ . '/views/course/my_courses.php',
-        'title' => 'Khóa học của tôi',
-        'layout' => 'layout.php'
-    ],
-    'user/manage_users' => [
-        'method' => 'GET',
-        'view' => __DIR__ . '/views/user/manage_users.php',
-        'title' => 'Quản lý người dùng',
-        'layout' => 'admin_layout.php'
-    ],
-    'category/manage' => [
-        'method' => 'GET',
-        'view' => __DIR__ . '/views/category/manage.php',
-        'title' => 'Quản lý danh mục',
-        'layout' => 'admin_layout.php'
-    ],
-    'tag/manage' => [
-        'method' => 'GET',
-        'view' => __DIR__ . '/views/tag/manage.php',
-        'title' => 'Quản lý thẻ',
-        'layout' => 'admin_layout.php'
-    ]
+    // 'auth/reset_password' => [
+    //     'method' => 'GET',
+    //     'view' => __DIR__ . '/views/auth/reset_password.php',
+    //     'title' => 'Đặt lại mật khẩu',
+    //     'layout' => 'layout.php'
+    // ],
 ];
 
 // Định nghĩa các controller được phép
 $allowedControllers = [
     'UserController' => UserController::class,
     'DocumentController' => DocumentController::class,
+    'HomeController' => HomeController::class,
+    'HomeAdminController' => HomeAdminController::class,
+    'AuthController' => AuthController::class,
 ];
 
 // Xử lý tuyến đường

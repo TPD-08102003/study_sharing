@@ -1,27 +1,3 @@
-<?php
-
-use App\Document;
-use App\Category;
-use App\Course;
-use App\Notification;
-use App\User;
-
-$documentModel = new Document($pdo);
-$categoryModel = new Category($pdo);
-$courseModel = new Course($pdo);
-$notificationModel = new Notification($pdo);
-$userModel = new User($pdo);
-
-$latestDocuments = array_slice($documentModel->getAllDocuments(), 0, 6);
-$categories = $categoryModel->getAllCategories();
-$courses = array_slice($courseModel->getAllCourses(), 0, 6);
-$notifications = [];
-if (isset($_SESSION['account_id'])) {
-    $allNotifications = $notificationModel->getNotificationsByUserId($_SESSION['account_id']);
-    $notifications = array_slice($allNotifications, 0, 5);
-}
-?>
-
 <div class="container py-4">
     <div class="bg-white p-4 rounded shadow-sm">
         <h1 class="display-4 text-primary mb-4">Chào mừng đến với Hệ thống Chia sẻ Tài liệu</h1>
