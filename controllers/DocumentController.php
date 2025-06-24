@@ -193,12 +193,16 @@ class DocumentController
         $tags->execute();
         $document['tags'] = $tags->fetchAll(PDO::FETCH_COLUMN);
 
-        $comments = $this->comment->getCommentsByDocumentId($document_id);
+        // Lấy bình luận với giới hạn 5
+        $commentData = $this->comment->getCommentsByDocumentId($document_id, 5, 0);
+        $comments = $commentData['comments'];
+        $totalComments = $commentData['total'];
         foreach ($comments as &$comment) {
             $comment['user'] = $this->user->getUserById($comment['account_id']);
             error_log("Comment ID: " . $comment['comment_id'] . ", Account ID: " . $comment['account_id'] . ", Full Name: " . ($comment['user']['full_name'] ?? 'Unknown'));
         }
         unset($comment);
+
         // Lấy các version của tài liệu
         $documentVersion = new DocumentVersion($this->db);
         $versions = $documentVersion->getVersionsByDocumentId($document_id);
@@ -244,6 +248,75 @@ class DocumentController
             echo json_encode(['success' => true, 'message' => 'Bình luận đã được gửi']);
         } else {
             echo json_encode(['success' => false, 'message' => 'Lỗi khi gửi bình luận']);
+        }
+    }
+
+    public function replyComment()
+    {
+        header('Content-Type: application/json');
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['success' => false, 'message' => 'Method not allowed']);
+            exit;
+        }
+
+        if (!isset($_SESSION['account_id'])) {
+            echo json_encode(['success' => false, 'message' => 'Vui lòng đăng nhập để trả lời']);
+            exit;
+        }
+
+        $document_id = isset($_POST['document_id']) ? (int)$_POST['document_id'] : 0;
+        $parent_comment_id = isset($_POST['parent_comment_id']) ? (int)$_POST['parent_comment_id'] : 0;
+        $comment_text = isset($_POST['comment_text']) ? trim($_POST['comment_text']) : '';
+
+        if ($document_id <= 0 || $parent_comment_id <= 0 || empty($comment_text)) {
+            echo json_encode(['success' => false, 'message' => 'Dữ liệu không hợp lệ']);
+            exit;
+        }
+
+        $document = $this->document->getDocumentById($document_id);
+        if (!$document) {
+            echo json_encode(['success' => false, 'message' => 'Tài liệu không tồn tại']);
+            exit;
+        }
+
+        $parentComment = $this->comment->getCommentById($parent_comment_id);
+        if (!$parentComment || $parentComment['document_id'] != $document_id) {
+            echo json_encode(['success' => false, 'message' => 'Bình luận cha không tồn tại']);
+            exit;
+        }
+
+        $success = $this->comment->createComment($document_id, $_SESSION['account_id'], $comment_text, $parent_comment_id);
+        if ($success) {
+            echo json_encode(['success' => true, 'message' => 'Trả lời đã được gửi']);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Lỗi khi gửi trả lời']);
+        }
+    }
+
+    public function deleteComment()
+    {
+        header('Content-Type: application/json');
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['success' => false, 'message' => 'Method not allowed']);
+            exit;
+        }
+
+        if (!isset($_SESSION['account_id'])) {
+            echo json_encode(['success' => false, 'message' => 'Vui lòng đăng nhập để xóa bình luận']);
+            exit;
+        }
+
+        $comment_id = isset($_POST['comment_id']) ? (int)$_POST['comment_id'] : 0;
+        if ($comment_id <= 0) {
+            echo json_encode(['success' => false, 'message' => 'Dữ liệu không hợp lệ']);
+            exit;
+        }
+
+        $success = $this->comment->deleteComment($comment_id, $_SESSION['account_id']);
+        if ($success) {
+            echo json_encode(['success' => true, 'message' => 'Bình luận đã được xóa']);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Không thể xóa bình luận. Có thể bình luận không phải của bạn hoặc đã quá 1 giờ.']);
         }
     }
 
@@ -311,13 +384,7 @@ class DocumentController
             exit;
         }
 
-        if (!isset($_SESSION['account_id'])) {
-            echo json_encode(['success' => false, 'message' => 'Vui lòng đăng nhập để ghi nhận tải xuống']);
-            exit;
-        }
-
         $document_id = isset($_POST['document_id']) ? (int)$_POST['document_id'] : 0;
-        $account_id = $_SESSION['account_id'];
 
         if ($document_id <= 0) {
             echo json_encode(['success' => false, 'message' => 'Dữ liệu không hợp lệ']);
@@ -325,18 +392,81 @@ class DocumentController
         }
 
         $document = $this->document->getDocumentById($document_id);
-        if (!$document) {
-            echo json_encode(['success' => false, 'message' => 'Tài liệu không tồn tại']);
+        if (!$document || $document['visibility'] !== 'public') {
+            echo json_encode(['success' => false, 'message' => 'Tài liệu không tồn tại hoặc không có quyền truy cập']);
             exit;
         }
 
-        $download = new Download($this->db);
-        $success = $download->recordDownload($document_id, $account_id);
+        // Ghi nhận tải xuống nếu người dùng đã đăng nhập
+        if (isset($_SESSION['account_id'])) {
+            $account_id = $_SESSION['account_id'];
+            $download = new Download($this->db);
 
-        if ($success) {
-            echo json_encode(['success' => true, 'message' => 'Tải xuống đã được ghi nhận']);
-        } else {
-            echo json_encode(['success' => false, 'message' => 'Lỗi khi ghi nhận tải xuống']);
+            // Kiểm tra xem bản ghi tải xuống đã tồn tại chưa
+            $existingDownloadStmt = $this->db->prepare("SELECT download_id FROM downloads WHERE document_id = :document_id AND account_id = :account_id");
+            $existingDownloadStmt->bindValue(':document_id', $document_id, PDO::PARAM_INT);
+            $existingDownloadStmt->bindValue(':account_id', $account_id, PDO::PARAM_INT);
+            $existingDownloadStmt->execute();
+            $existingDownload = $existingDownloadStmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($existingDownload) {
+                // Cập nhật download_date nếu bản ghi đã tồn tại
+                $updateStmt = $this->db->prepare("UPDATE downloads SET download_date = NOW() WHERE download_id = :download_id");
+                $updateStmt->bindValue(':download_id', $existingDownload['download_id'], PDO::PARAM_INT);
+                $success = $updateStmt->execute();
+            } else {
+                // Tạo bản ghi mới nếu chưa tồn tại
+                $success = $download->recordDownload($document_id, $account_id);
+            }
+
+            if (!$success) {
+                echo json_encode(['success' => false, 'message' => 'Lỗi khi ghi nhận tải xuống']);
+                exit;
+            }
         }
+
+        // Luôn trả về thành công để cho phép tải xuống
+        echo json_encode(['success' => true, 'message' => 'Tải xuống được phép']);
+    }
+
+    public function loadMoreComments()
+    {
+        header('Content-Type: application/json');
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['success' => false, 'message' => 'Method not allowed']);
+            exit;
+        }
+
+        $document_id = isset($_POST['document_id']) ? (int)$_POST['document_id'] : 0;
+        $offset = isset($_POST['offset']) ? (int)$_POST['offset'] : 0;
+        $limit = 5;
+
+        if ($document_id <= 0) {
+            echo json_encode(['success' => false, 'message' => 'Dữ liệu không hợp lệ']);
+            exit;
+        }
+
+        $document = $this->document->getDocumentById($document_id);
+        if (!$document || ($document['visibility'] !== 'public' && (!isset($_SESSION['account_id']) || $_SESSION['account_id'] != $document['account_id']))) {
+            echo json_encode(['success' => false, 'message' => 'Tài liệu không tồn tại hoặc không có quyền truy cập']);
+            exit;
+        }
+
+        $commentData = $this->comment->getCommentsByDocumentId($document_id, $limit, $offset);
+        $comments = $commentData['comments'];
+        $totalComments = $commentData['total'];
+
+        // Lấy thông tin người dùng cho từng bình luận
+        foreach ($comments as &$comment) {
+            $comment['user'] = $this->user->getUserById($comment['account_id']);
+            $comment['comment_date'] = date('d/m/Y H:i', strtotime($comment['comment_date']));
+        }
+        unset($comment);
+
+        echo json_encode([
+            'success' => true,
+            'comments' => $comments,
+            'hasMore' => ($offset + count($comments)) < $totalComments
+        ]);
     }
 }

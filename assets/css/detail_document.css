@@ -1,3 +1,8 @@
+/* Giới hạn chiều rộng của versionSelect */
+#versionSelect {
+    max-width: 300px;
+}
+
 .pdf-container {
     display: flex;
     flex-direction: column;
@@ -18,7 +23,6 @@
 .rating-stars {
     font-size: 24px;
     color: #ccc;
-    /* Màu sao rỗng */
     cursor: pointer;
 }
 
@@ -28,9 +32,31 @@
 
 .rating-stars .star.filled {
     color: #ffcc00;
-    /* Màu sao đã chọn */
 }
 
 .rating-stars .star:hover {
     color: #ffcc00;
+}
+
+#loadMoreComments {
+    width: 100%;
+    text-align: center;
+}
+
+.comment-item,
+.reply-item {
+    position: relative;
+}
+
+.dropdown-menu {
+    min-width: 120px;
+}
+
+.replies {
+    border-left: 2px solid #dee2e6;
+    padding-left: 15px;
+}
+
+.reply-form textarea {
+    resize: vertical;
 }
