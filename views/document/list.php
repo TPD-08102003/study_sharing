@@ -7,6 +7,16 @@ $categories = $categories ?? [];
 $page = $page ?? 1;
 $totalPages = $totalPages ?? 1;
 ?>
+<style>
+    .rating-stars .star {
+        font-size: 20px;
+        color: #ccc;
+    }
+
+    .rating-stars .star.filled {
+        color: #ffcc00;
+    }
+</style>
 <div class="container">
     <h1 class="mb-4">Danh sách tài liệu</h1>
 
@@ -61,12 +71,12 @@ $totalPages = $totalPages ?? 1;
                             <p class="card-text"><small class="text-muted">Người tải lên: <?php echo htmlspecialchars($doc['full_name'] ?? 'Ẩn danh'); ?></small></p>
                             <p class="card-text"><small class="text-muted">Ngày tải: <?php echo date('d/m/Y', strtotime($doc['upload_date'])); ?></small></p>
                             <p class="card-text">
-                                Rating: <?php echo $doc['avg_rating'] ? $doc['avg_rating'] . '/5' : 'Chưa có đánh giá'; ?>
-                                <?php for ($i = 1; $i <= 5; $i++): ?>
-                                    <span class="text-warning" style="cursor: default;">
-                                        ★<?php echo ($i <= $doc['avg_rating']) ? '★' : ''; ?>
-                                    </span>
-                                <?php endfor; ?>
+                                Rating: <?php echo $doc['avg_rating'] ? number_format($doc['avg_rating'], 1) . '/5' : 'Chưa có đánh giá'; ?>
+                                <span class="rating-stars">
+                                    <?php for ($i = 1; $i <= 5; $i++): ?>
+                                        <span class="star <?php echo ($i <= round($doc['avg_rating'])) ? 'filled' : ''; ?>">★</span>
+                                    <?php endfor; ?>
+                                </span>
                             </p>
                             <p class="card-text">
                                 <?php foreach ($doc['tags'] as $tag): ?>

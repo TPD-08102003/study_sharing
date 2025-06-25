@@ -9,7 +9,7 @@
             <div class="row row-cols-1 row-cols-md-4 g-3">
                 <?php foreach ($categories as $category): ?>
                     <div class="col">
-                        <a href="/study_sharing/category/<?php echo $category['category_id']; ?>" class="card h-100 bg-light text-decoration-none">
+                        <a href="/study_sharing/document/list?category_id=<?php echo $category['category_id']; ?>" class="card h-100 bg-light text-decoration-none">
                             <div class="card-body text-center">
                                 <h5 class="card-title"><?php echo htmlspecialchars($category['category_name']); ?></h5>
                                 <p class="card-text text-muted"><?php echo htmlspecialchars($category['description'] ?? ''); ?></p>
