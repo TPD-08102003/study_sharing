@@ -43,7 +43,7 @@ $allowedControllers = [
     'AuthController' => AuthController::class,
     // Thêm các controller khác nếu cần
 ];
-
+//hahahahahah
 // Xử lý tuyến đường
 function handleRoute($uri, $method, $pdo, $staticRoutes, $allowedControllers)
 {
