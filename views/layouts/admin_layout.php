@@ -47,7 +47,7 @@ if (session_status() === PHP_SESSION_NONE) {
                         <li>
                             <hr class="dropdown-divider">
                         </li>
-                        <li><a class="dropdown-item text-danger" href="/study_sharing/user/logout"><i class="bi bi-box-arrow-right"></i> Đăng xuất</a></li>
+                        <li><a class="dropdown-item text-danger" href="/study_sharing/auth/logout"><i class="bi bi-box-arrow-right"></i> Đăng xuất</a></li>
                     </ul>
                 </li>
             </ul>

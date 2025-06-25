@@ -24,7 +24,7 @@
                 submitButton.disabled = true;
                 spinner.classList.remove('d-none');
                 const formData = new FormData(form);
-                fetch('/study_sharing/user/changePassword', {
+                fetch('/study_sharing/auth/changePassword', {
                     method: 'POST',
                     body: formData
                 })

@@ -26,7 +26,7 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
     submitButton.disabled = true;
     spinner.classList.remove('d-none');
 
-    fetch('/study_sharing/user/login', {
+    fetch('/study_sharing/auth/login', {
         method: 'POST',
         body: new FormData(form)
     })
@@ -81,7 +81,7 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
                 submitButton.disabled = true;
                 spinner.classList.remove('d-none');
                 const formData = new FormData(form);
-                fetch('/study_sharing/user/register', {
+                fetch('/study_sharing/auth/register', {
                     method: 'POST',
                     body: formData
                 })
@@ -150,7 +150,7 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
                 submitButton.disabled = true;
                 spinner.classList.remove('d-none');
                 const formData = new FormData(form);
-                fetch('/study_sharing/user/forgotPassword', {
+                fetch('/study_sharing/auth/forgotPassword', {
                     method: 'POST',
                     body: formData
                 })
@@ -204,7 +204,7 @@ document.getElementById('loginForm').addEventListener('submit', function(e) {
                 submitButton.disabled = true;
                 spinner.classList.remove('d-none');
                 const formData = new FormData(form);
-                fetch('/study_sharing/user/changePassword', {
+                fetch('/study_sharing/auth/changePassword', {
                     method: 'POST',
                     body: formData
                 })
