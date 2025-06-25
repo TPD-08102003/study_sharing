@@ -93,7 +93,7 @@ $title = "Đặt lại mật khẩu";
                     } else {
                         event.preventDefault();
                         const formData = new FormData(form);
-                        fetch('/study_sharing/user/resetPassword', {
+                        fetch('/study_sharing/auth/resetPassword', {
                                 method: 'POST',
                                 body: formData
                             })

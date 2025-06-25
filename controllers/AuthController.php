@@ -293,6 +293,12 @@ class AuthController
         HTML;
     }
 
+    public function reset_password()
+    {
+        $title = "Đặt lại mật khẩu";
+        require __DIR__ . '/../views/auth/reset_password.php';
+    }
+
     public function resetPassword()
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -334,9 +340,6 @@ class AuthController
                 echo json_encode(['success' => false, 'message' => 'Lỗi server, vui lòng thử lại sau!']);
             }
             exit;
-        } else {
-            $title = "Đặt lại mật khẩu";
-            require __DIR__ . '/../views/auth/reset_password.php';
         }
     }
 
