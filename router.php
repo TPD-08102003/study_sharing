@@ -12,6 +12,7 @@ use App\DocumentController;
 use App\HomeController;
 use App\HomeAdminController;
 use App\AuthController;
+// thêm controller khác nếu cần
 
 session_start();
 
@@ -40,6 +41,7 @@ $allowedControllers = [
     'HomeController' => HomeController::class,
     'HomeAdminController' => HomeAdminController::class,
     'AuthController' => AuthController::class,
+    // Thêm các controller khác nếu cần
 ];
 
 // Xử lý tuyến đường
